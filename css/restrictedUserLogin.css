@@ -1,0 +1,260 @@
+:root {
+    --light-blue: rgb(207, 77, 77);
+    --dark-blue: rgb(208, 56, 56);
+    --violet: rgb(207, 77, 77);
+    --background-left: rgb(5, 5, 5);
+    --background-right: rgb(60, 60, 60);
+    --conic-gradient: conic-gradient(var(--dark-blue), var(--violet), var(--light-blue), var(--dark-blue));
+}
+
+/* Estructura principal */
+body {
+    background: linear-gradient(to right, var(--background-left), var(--background-right));
+    height: 100vh;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* Navbar */
+.login-nav {
+    position: fixed;
+    width: 100%;
+    padding: 15px 40px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+.logo-container img {
+    width: 150px;
+    height: auto;
+    transition: transform 0.3s;
+}
+
+.logo-container img:hover {
+    transform: scale(1.05);
+}
+
+/* Contenedor rectangular principal */
+.rectangle-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    padding-top: 80px;
+}
+
+.rectangle {
+    width: 85vw;
+    height: 80vh;
+    background: rgba(30, 30, 30, 0.8);
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(208, 56, 56, 0.6);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rectangle::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--conic-gradient);
+    animation: rotate 10s linear infinite;
+    opacity: 0.3;
+    z-index: -1;
+}
+
+.rectangle-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    padding: 40px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Caja de verificación */
+.verification-box {
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.verification-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(208, 56, 56, 0.5);
+}
+
+.verification-subtitle {
+    color: #9CA3AF;
+    margin-bottom: 2.5rem;
+    font-size: 1.2rem;
+}
+
+/* Formulario PIN */
+.pin-form {
+    margin-bottom: 2rem;
+}
+
+.otp-input-group {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.otp-input {
+    width: 60px;
+    height: 80px;
+    border-radius: 12px;
+    text-align: center;
+    background-color: rgba(55, 65, 81, 0.7);
+    font-size: 2rem;
+    border: 2px solid rgba(208, 56, 56, 0.5);
+    color: white;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.otp-input:focus {
+    border-color: var(--light-blue);
+    background-color: rgba(75, 85, 99, 0.8);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(208, 56, 56, 0.4);
+}
+
+/* Elimina las flechas en los inputs number */
+.otp-input {
+    -moz-appearance: textfield; 
+}
+
+.otp-input::-webkit-outer-spin-button,
+.otp-input::-webkit-inner-spin-button {
+    -webkit-appearance: none; 
+    margin: 0;
+}
+
+/* Botones */
+.verify-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: linear-gradient(to right, var(--dark-blue), var(--light-blue));
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(208, 56, 56, 0.4);
+}
+
+.verify-btn:hover {
+    background: linear-gradient(to right, var(--light-blue), var(--dark-blue));
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(208, 56, 56, 0.6);
+}
+
+.back-container {
+    text-align: center;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 12px 24px;
+    background: rgba(208, 56, 56, 0.3);
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
+    border: 1px solid rgba(208, 56, 56, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.back-btn:hover {
+    background: rgba(208, 56, 56, 0.5);
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(208, 56, 56, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rectangle {
+        width: 95vw;
+        height: 85vh;
+    }
+    
+    .verification-box {
+        padding: 30px;
+    }
+    
+    .otp-input {
+        width: 50px;
+        height: 70px;
+        font-size: 1.8rem;
+    }
+    
+    .verification-title {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rectangle-content {
+        padding: 20px;
+    }
+    
+    .verification-box {
+        padding: 20px;
+    }
+    
+    .otp-input-group {
+        gap: 1rem;
+    }
+    
+    .otp-input {
+        width: 45px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .verification-title {
+        font-size: 1.8rem;
+    }
+    
+    .verify-btn, .back-btn {
+        padding: 12px;
+        font-size: 1rem;
+    }
+}

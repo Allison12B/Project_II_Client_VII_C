@@ -1,17 +1,7 @@
-# Project 1 - Fisrt project with APIs
-This project was developed with Express.js.
+# Project_I_Client_VII_C
 
-## Install
+This repository is responsible for calling the APIs of the Project_I_Server_VII_C repository, through the functions.js classes of each service, all of this achieving that the requests and responses are displayed in the views.
 
-- npm install
-
-## Run
-
-- npm start
-
-## Test
-
-- To test this you can use [postman](https://www.postman.com/) or a simple curl request: `curl http://localhost:3001/hello`
-
-This repository is responsible for making all requests through the controllers calling the necessary database models.
-In this case, a NoSQL database (MongoDB) is being used.
+# Run
+- With Live Server Extention
+- php -S localhost:8081 (This will display a link that will be clicked and the index.html will be displayed).

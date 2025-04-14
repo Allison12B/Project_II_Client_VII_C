@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Restricted User</title>
+    <script src="js/profileFuntions.js"></script>
+    <link rel="stylesheet" href="../css/restrictedUserCreate.css">
+</head>
+
+<body>
+    <nav>
+        <a href="./index.html"><img src="images/Logo.jpg" alt="logo"></a>
+    </nav>
+    <div class="form-wrapper">
+        <h2>Edit User</h2>
+        <form id="createForm" method="post">
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="text" id="nameProfile" name="nameProfile" class="form-control"
+                        aria-describedby="helpId" required>
+                    <label>Name</label>
+                    <small class="text-danger d-none" id="nameProfile">Please, write a valid email.</small>
+                </div>
+
+                <div class="form-control form-col">
+                    <input type="number" id="ageProfile" name="ageProfile" class="form-control"
+                        aria-describedby="helpId" required>
+                    <label>Age</label>
+                    <small class="text-danger d-none" id="ageProfile">Please, write a valid email.</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="number" id="pinProfile" name="pinProfile" class="form-control"
+                        aria-describedby="helpId" required>
+                    <label>Pin</label>
+                    <small class="text-danger d-none" id="pinProfile">Please, write a valid email.</small>
+                </div>
+
+                <div class="form-control form-col">
+                    <select name="avatarProfile" id="avatarProfile" class="form-control" aria-describedby="helpId">
+                        <option value="Avatar/Avatar1.png">Select your avatar</option>
+                        <option value="Avatar/Avatar1.png">Avatar 1 - F</option>
+                        <option value="Avatar/Avatar2.png">Avatar 2 - M</option>
+                        <option value="Avatar/Avatar3.png">Avatar 3 - M</option>
+                        <option value="Avatar/Avatar4.png">Avatar 4 - F</option>
+                        <option value="Avatar/Avatar5.png">Avatar 5 - F</option>
+                        <option value="Avatar/Avatar6.png">Avatar 6 - M</option>
+                    </select>
+                    <label>Avatar</label>
+                    <small class="text-danger d-none" id="ageProfile">Please, write a valid email.</small>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button type="button" class="btn btn-primary" onclick="updateProfile(); return false;">Save</button>
+                <button type="button" class="btn btn-warning" onclick="window.location.href=`../restrictedUserAdmin.html?adminId=${getUrlParam('adminId')}`">Back</button>
+            </div>
+
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidsTube Login</title>
+    <script src="JS/adminFunctions.js"></script>
+    <link rel="stylesheet" href="../css/index.css">
+</head>
+
+<body>
+    <nav>
+        <a href="./index.html"><img src="images/Logo.jpg" alt="logo"></a>
+    </nav>
+    <div class="form-wrapper">
+        <h2>Sign In</h2>
+        <form id="loginForm" onsubmit="findAdmin(event)">
+            <div class="form-control">
+                <input type="email" id="emailKey" name="emailKey" class="form-control" aria-describedby="helpId" required>
+                <label>Email</label>
+            </div>
+            <div class="form-control">
+                <input type="password" class="form-control" id="passwordKey" name="passwordKey" required>
+                <label>Password</label>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+        <p>New to KidsTube? <a href="./adminCreate.html">Sign up now</a></p>
+    </div>
+</body>
+
+</html>

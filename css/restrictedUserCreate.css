@@ -1,0 +1,271 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background: #000;
+    min-height: 100vh;
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+nav {
+    position: fixed;
+    padding: 25px 60px;
+    z-index: 1;
+}
+
+nav a img {
+    width: 200px;
+}
+
+.form-wrapper {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 4px;
+    padding: 50px;
+    width: 800px;
+    max-width: 90%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.75);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
+}
+
+.form-wrapper h2 {
+    color: #fff;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-wrapper form {
+    margin: 25px 0 50px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.form-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.form-control {
+    height: 50px;
+    position: relative;
+    margin-bottom: 0;
+}
+
+.form-control input {
+    height: 100%;
+    width: 100%;
+    background: #333;
+    border: none;
+    outline: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0 20px;
+    transition: all 0.3s;
+}
+
+.form-control select:is(:focus, :valid) {
+    background: #444;
+    padding: 16px 20px 0;
+}
+
+.form-control select {
+    height: 100%;
+    width: 100%;
+    background: #333;
+    border: none;
+    outline: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0 20px;
+    transition: all 0.3s;
+}
+
+.form-control input:is(:focus, :valid) {
+    background: #444;
+    padding: 16px 20px 0;
+}
+
+.form-control label {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    pointer-events: none;
+    color: #8c8c8c;
+    transition: all 0.3s ease;
+}
+
+.form-control input:is(:focus, :valid)~label {
+    font-size: 0.75rem;
+    transform: translateY(-130%);
+}
+
+.form-control select:is(:focus, :valid)~label {
+    font-size: 0.75rem;
+    transform: translateY(-130%);
+}
+
+.form-control small {
+    position: absolute;
+    bottom: -18px;
+    left: 0;
+    font-size: 0.75rem;
+    color: #e50914;
+    display: none;
+}
+
+.form-control.error small {
+    display: block;
+}
+
+.button-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.button-row button {
+    flex: 1;
+    padding: 16px 0;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: #e50914;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #c40812;
+    transform: translateY(-2px);
+}
+
+.btn-warning {
+    background: #e50914;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background: #c40812;
+    transform: translateY(-2px);
+}
+
+/* Estilos para validación */
+input:invalid {
+    border: 1px solid #e50914;
+}
+
+input:valid {
+    border: 1px solid #e50914;
+}
+
+/* Estilo específico para el input de fecha de nacimiento */
+#dateBirthAdmin {
+    color: transparent; /* Oculta el texto del placeholder por defecto */
+}
+
+#dateBirthAdmin::placeholder {
+    color: transparent; /* Asegura que el placeholder no sea visible */
+}
+
+/* Cuando el input está enfocado o tiene contenido, muestra el placeholder */
+#dateBirthAdmin:focus::placeholder,
+#dateBirthAdmin:not(:placeholder-shown)::placeholder {
+    color: #8c8c8c; /* Color del placeholder cuando es visible */
+}
+
+/* Asegura que el texto ingresado sea visible */
+#dateBirthAdmin:focus,
+#dateBirthAdmin:not(:placeholder-shown) {
+    color: #fff; /* Color del texto ingresado */
+}
+
+/* Estilo del label para el campo de fecha */
+#dateBirthAdmin ~ label {
+    pointer-events: none;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8c8c8c;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+/* Cuando el input está enfocado o tiene contenido, mueve el label */
+#dateBirthAdmin:focus ~ label,
+#dateBirthAdmin:not(:placeholder-shown) ~ label {
+    font-size: 0.75rem;
+    transform: translateY(-130%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .form-wrapper {
+        padding: 30px;
+        width: 95%;
+        top: 60%;
+    }
+    
+    nav {
+        padding: 15px 20px;
+    }
+    
+    nav a img {
+        width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .button-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-wrapper {
+        padding: 20px;
+    }
+    
+    .form-wrapper h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+}
