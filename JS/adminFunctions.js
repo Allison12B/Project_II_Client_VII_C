@@ -11,6 +11,56 @@ function clearInputs(inputs) {
     });
 }
 
+//Login logic
+async function findAdmin(event) {
+    // Prevent default form submission
+    event.preventDefault();
+
+    const email = document.getElementById('emailKey').value;
+    const password = document.getElementById('passwordKey').value;
+
+    // First check if fields are empty
+    if (!email || !password) {
+        alert("Please enter both email and password");
+        return;
+    }
+
+    // Data type validate 
+    if (
+        typeof email !== 'string' || email.trim() === '' ||
+        typeof password !== 'string' || password.trim() === ''
+    ) {
+        alert('Please provide valid email and password');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3001/api/adminUserLogin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        const inputs = document.querySelectorAll('input');
+        if (!response.ok) {
+            clearInputs(inputs); 
+            inputs[0].focus();
+        } else if(data.success && data.token) {
+            // Guardar el token en localStorage
+            sessionStorage.setItem('jwtToken', data.token);
+            // Redirigir
+            window.location.href = `profileHome.html?adminId=${data.data.id}`;
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert(error.message || "An error occurred during login");
+    }
+}
+
 // Save a new profile
 async function createAdmin(event) {
     // Prevent default form submission
@@ -70,53 +120,6 @@ async function createAdmin(event) {
         window.location.href = "index.html";
     }
     alert('Saved Administrator');
-}
-
-//Login logic
-async function findAdmin(event) {
-    // Prevent default form submission
-    event.preventDefault();
-
-    const email = document.getElementById('emailKey').value;
-    const password = document.getElementById('passwordKey').value;
-
-    // First check if fields are empty
-    if (!email || !password) {
-        alert("Please enter both email and password");
-        return;
-    }
-
-    // Data type validate 
-    if (
-        typeof email !== 'string' || email.trim() === '' ||
-        typeof password !== 'string' || password.trim() === ''
-    ) {
-        alert('Please provide valid email and password');
-        return;
-    }
-
-    try {
-        const response = await fetch('http://localhost:3001/api/adminUserLogin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        const inputs = document.querySelectorAll('input');
-        if (!response.ok) {
-            clearInputs(inputs); 
-            inputs[0].focus();
-        } else if(data.success){
-            window.location.href = `profileHome.html?adminId=${data.data.id}`;
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        alert(error.message || "An error occurred during login");
-    }
 }
 
 // Verificate data
@@ -201,12 +204,14 @@ function setupPinInputs() {
     });
 }
 
-// add the paramers adminId
+// add the parameters adminId y remover token de sessionStorage
 function updateBackLink() {
+    // Remover el token del sessionStorage (logout)
+    sessionStorage.removeItem('jwtToken');
+
     const adminId = getUrlParam('adminId');
     if (!adminId) return;
 
-    
     document.querySelectorAll('a[href*="profileHome.html"], button[onclick*="profileHome.html"]').forEach(element => {
         if (element.tagName === 'A') {
             element.href = `profileHome.html?adminId=${adminId}`;
