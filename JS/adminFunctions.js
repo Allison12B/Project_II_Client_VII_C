@@ -115,12 +115,45 @@ async function createAdmin(event) {
     });
 
     if (response && response.status == 201) {
-        admin = await response.json();
-        console.log('Saved Administrator: ', admin);
+        const savedAdmin = await response.json();
+        console.log('Saved Administrator: ', savedAdmin);
+        alert('Saved Administrator');
         window.location.href = "index.html";
+    } else {
+        alert('There was a problem saving the admin');
     }
-    alert('Saved Administrator');
 }
+
+async function verifyEmail() {  
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (!token) {
+        messageDiv.textContent = 'Token no encontrado en el enlace.';
+        messageDiv.classList.add('error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3001/api/verify?token=${token}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            messageDiv.textContent = data.message || '¡Correo verificado con éxito!';
+            messageDiv.classList.add('success');
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 2000);
+        } else {
+            messageDiv.textContent = data.error || 'Token inválido o expirado.';
+            messageDiv.classList.add('error');
+        }
+    } catch (err) {
+        messageDiv.textContent = 'Error al verificar el correo.';
+        messageDiv.classList.add('error');
+    }
+}
+
 
 // Verificate data
 async function AdminPinLogin(event) {
