@@ -29,7 +29,7 @@ function goBackWithAdminId() {
     const adminId = getAdminIdFromUrl();
     if (adminId) {
         window.location.href = `../restrictedUser/restrictedUserAdmin.html?adminId=${adminId}`;
-    }
+    }
 }
 
 // Client inputs
@@ -104,7 +104,7 @@ async function getProfiles() {
             card.className = 'card h-100 profile-card';
             card.style.cursor = 'pointer';
 
-            
+
             card.addEventListener('click', () => {
                 selectProfile(profile._id);
             });
@@ -142,8 +142,8 @@ async function getProfilesTable() {
 
     profiles.forEach((profile, index) => {
         const row = document.createElement('tr');
-        
-        const avatar = profile.avatar 
+
+        const avatar = profile.avatar
             ? `<img src="../${profile.avatar}" style="width: 100px; height: 80px; border-radius: 50%;" alt="Avatar">`
             : '<i class="fas fa-user-circle" style="font-size: 2rem;"></i>';
 
@@ -181,6 +181,14 @@ function selectProfile(profileId) {
 // Save a new profile
 async function createProfile() {
     const adminUserId = getUrlParam('adminId');
+    const token = localStorage.getItem('jwtToken');
+    alert(token);//No está capturando el token, retorna un valor null (comentarion para Allison)
+
+    if (!token) {
+        alert("No estás autenticado. Por favor inicia sesión.");
+        window.location.href = '../index.html'; 
+        return;
+    }
 
     if (!adminUserId) {
         alert("Admin ID not found.");
@@ -216,9 +224,10 @@ async function createProfile() {
         const response = await fetch("http://localhost:3001/api/restrictedUser", {
             method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(profile)
+            body: JSON.stringify(profile),
         });
 
         if (response.ok) {
@@ -248,7 +257,7 @@ async function updateProfile(profileId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:3001/api/restrictedUser/${profileId}`, { 
+        const response = await fetch(`http://localhost:3001/api/restrictedUser/${profileId}`, {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json'
@@ -293,7 +302,7 @@ async function deleteProfile(profileId) {
         if (response.ok) {
             const result = await response.json();
             console.log('Perfil eliminado:', result);
-            
+
             alert('Perfil eliminado correctamente');
             goBackWithAdminId();
         } else {
@@ -329,21 +338,21 @@ async function pinFormValidated(event) {
     }
 
     try {
-        
+
         const response = await fetch(`http://localhost:3001/api/restrictedUserLogin/${profileId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                pin: Number(pin) 
+                pin: Number(pin)
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            
+
             window.location.href = `restrictedUser/playlistRestrictedUser.html?adminId=${adminId}&profileId=${profileId}`;
         } else {
             clearInputs(inputs); // Clean the pin input
@@ -388,7 +397,7 @@ function setupPinInputs() {
             }
         });
 
-    
+
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !input.value && index > 0) {
                 inputs[index - 1].focus();
@@ -402,7 +411,7 @@ function updateBackLink() {
     const adminId = getUrlParam('adminId');
     if (!adminId) return;
 
-    
+
     document.querySelectorAll('a[href*="profileHome.html"], button[onclick*="profileHome.html"]').forEach(element => {
         if (element.tagName === 'A') {
             element.href = `profileHome.html?adminId=${adminId}`;
@@ -416,17 +425,17 @@ function updateBackLink() {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    
+
     if (document.getElementById('profiles')) {
         getProfiles();
     } else if (document.getElementById('profilesTable')) {
         getProfilesTable();
     }
-    
+
     setupPinInputs();
     updateBackLink();
 
-    
+
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', pinFormValidated);
