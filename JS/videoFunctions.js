@@ -120,11 +120,16 @@ async function createVideo() {
 
 //Delete a video
 async function deleteVideo(videoId) {
+    const token = sessionStorage.getItem('jwtToken');
 
     try {
         
         const response = await fetch(`http://localhost:3001/api/video/${videoId}`, {
             method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
         });
 
         if (response.status === 404) {
