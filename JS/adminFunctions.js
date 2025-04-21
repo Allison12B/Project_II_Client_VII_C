@@ -66,6 +66,7 @@ async function createAdmin(event) {
     // Prevent default form submission
     event.preventDefault();
 
+
     let admin = {
         email: document.getElementById('emailAdmin').value,
         password: document.getElementById('passwordAdmin').value,
@@ -158,7 +159,8 @@ async function verifyEmail() {
 // Verificate data
 async function AdminPinLogin(event) {
     event.preventDefault();
-
+    
+    const token = sessionStorage.getItem('jwtToken');
     const adminId = getUrlParam('adminId');
 
     const inputs = document.querySelectorAll('.otp-input');
@@ -174,6 +176,7 @@ async function AdminPinLogin(event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 pin: Number(pin) 

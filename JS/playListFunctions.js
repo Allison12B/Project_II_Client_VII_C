@@ -146,11 +146,13 @@ async function getPlaylistsByAdmin() {
 
 // Delete playlist
 async function deletePlayList(playListId) {
+    const token = sessionStorage.getItem('jwtToken');
     try {
         const response = await fetch(`http://127.0.0.1:3001/api/playList/${playListId}`, {
             method: 'DELETE', 
             headers: {
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -237,6 +239,7 @@ async function createPlaylist() {
     const name = document.getElementById("videoName").value.trim();
     const adminUser = getAdminIdFromUrl(); 
     const restrictedUsers = getSelectedUsers();
+    const token = sessionStorage.getItem('jwtToken');
 
     if (!name) {
         alert("Complete all the inputs");
@@ -253,7 +256,8 @@ async function createPlaylist() {
         const response = await fetch("http://localhost:3001/api/playList/create/${adminUser}", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(playlistData)
         });
