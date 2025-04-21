@@ -239,6 +239,7 @@ async function createPlaylist() {
     const name = document.getElementById("videoName").value.trim();
     const adminUser = getAdminIdFromUrl(); 
     const restrictedUsers = getSelectedUsers();
+    const token = sessionStorage.getItem('jwtToken');
 
     if (!name) {
         alert("Complete all the inputs");
@@ -255,7 +256,8 @@ async function createPlaylist() {
         const response = await fetch("http://localhost:3001/api/playList/create/${adminUser}", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(playlistData)
         });
