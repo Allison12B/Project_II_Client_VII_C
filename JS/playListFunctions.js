@@ -146,11 +146,13 @@ async function getPlaylistsByAdmin() {
 
 // Delete playlist
 async function deletePlayList(playListId) {
+    const token = sessionStorage.getItem('jwtToken');
     try {
         const response = await fetch(`http://127.0.0.1:3001/api/playList/${playListId}`, {
             method: 'DELETE', 
             headers: {
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             }
         });
 
