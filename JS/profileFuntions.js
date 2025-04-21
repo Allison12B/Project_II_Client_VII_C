@@ -39,87 +39,104 @@ function clearInputs(inputs) {
     });
 }
 
-// Get the damin´s restricted users
-async function fetchProfiles() {
-    const adminId = getUrlParam('adminId');
-    if (!adminId) {
-        alert("Admin ID not found.");
-        window.location.href = 'profileHome.html';
-        return null;
-    }
-
-    try {
-        const response = await fetch(`http://localhost:3001/api/restrictedUser/adminUser/${adminId}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error('Error loading profiles:', error);
-        alert('Error loading profiles. See console for details.');
-        return null;
-    }
+// Query of graphQL API
+function queryRestrictedUserCards() {
+    const query = `
+        {
+            getRestrictedUserByAdmin {
+                _id
+                name
+                avatar
+            }
+        }
+    `;
+    return query;
 }
 
-//Get all profiles in table
-async function getProfiles() {
-    const adminId = getUrlParam('adminId');
 
-    if (!adminId) {
-        alert("Admin ID not found.");
-        window.location.href = 'profileHome.html';
-        return;
-    }
+// Return the admin´s restricted users from the GraphQL API
+async function fetchProfiles(query) {
+    const token = sessionStorage.getItem('jwtToken');
 
     try {
-        const response = await fetch(`http://localhost:3001/api/restrictedUser/adminUser/${adminId}`);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query })
+        });
+
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            return;
         }
 
-        const profiles = await response.json();
+        const profiles = result.data.getRestrictedUserByAdmin;
         console.log('Perfiles obtenidos:', profiles);
 
+        return profiles;
+
+    } catch (error) {
+        console.error("Error getting restricted users:", error);
+        alert("Error to get restricted users");
+    }
+
+}
+
+
+//Get all profiles and create cards with the information of each profile
+async function getProfiles() {
+    try {
+        const profiles = await fetchProfiles(queryRestrictedUserCards());
+
+        if (!profiles) return;
+    
         const container = document.getElementById('profiles');
+    
         if (!container) {
             console.error('Element with ID "profiles" not found');
             return;
         }
-
+    
         container.innerHTML = '';
-
+    
         if (!Array.isArray(profiles)) {
             console.error('Received data is not an array:', profiles);
             return;
         }
-
+    
         const row = document.createElement('div');
         row.className = 'row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4';
         container.appendChild(row);
-
+    
         profiles.forEach(profile => {
             const col = document.createElement('div');
             col.className = 'col';
-
+    
             const card = document.createElement('div');
             card.className = 'card h-100 profile-card';
             card.style.cursor = 'pointer';
-
-
+    
             card.addEventListener('click', () => {
                 selectProfile(profile._id);
             });
-
+    
             const avatarImg = profile.avatar
                 ? `<img src="${profile.avatar}" class="card-img-top profile-avatar" alt="Avatar">`
                 : '<div class="no-avatar"><i class="fas fa-user-circle"></i></div>';
-
+    
             card.innerHTML = `
                 <div class="card-body text-center">
                     ${avatarImg}
                     <h5 class="card-title mt-3">${profile.name || 'Sin nombre'}</h5>
                 </div>
             `;
-
+    
             col.appendChild(card);
             row.appendChild(col);
         });
@@ -186,7 +203,7 @@ async function createProfile() {
 
     if (!token) {
         alert("No estás autenticado. Por favor inicia sesión.");
-        window.location.href = '../index.html'; 
+        window.location.href = '../index.html';
         return;
     }
 
