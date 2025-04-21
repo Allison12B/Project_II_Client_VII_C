@@ -1,4 +1,3 @@
-// Funtion assignEditEvents 
 function assignEditEvents() {
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -6,16 +5,6 @@ function assignEditEvents() {
             window.location.href = `profileEdit.html?adminId=${getUrlParam('adminId')}&profileId=${profileId}`;
         });
     });
-}
-
-function assignEditEvents() {
-    for (let el of document.getElementsById('edit')) {
-        el.addEventListener('click', (e) => {
-            console.log(e.target.id);
-            //alert(`element with id ${e.target.id} clicked`);
-            //e.preventDefault(); //HACE QUE NO SE PUEDA REDIRIGIR LA PÁGINA 
-        });
-    }
 }
 
 //Get params
@@ -39,87 +28,118 @@ function clearInputs(inputs) {
     });
 }
 
-// Get the damin´s restricted users
-async function fetchProfiles() {
-    const adminId = getUrlParam('adminId');
-    if (!adminId) {
-        alert("Admin ID not found.");
-        window.location.href = 'profileHome.html';
-        return null;
-    }
-
-    try {
-        const response = await fetch(`http://localhost:3001/api/restrictedUser/adminUser/${adminId}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error('Error loading profiles:', error);
-        alert('Error loading profiles. See console for details.');
-        return null;
-    }
+// Query of graphQL API
+function queryRestrictedUserCards() {
+    const query = `
+        {
+            getRestrictedUserByAdmin {
+                _id
+                name
+                avatar
+            }
+        }
+    `;
+    return query;
 }
 
-//Get all profiles in table
-async function getProfiles() {
-    const adminId = getUrlParam('adminId');
+function queryRestrictedUserTable() {
+    const query = `
+        {
+            getRestrictedUserByAdmin {
+                _id
+                avatar
+                name
+                pin
+                age
+            }
+        }
+    `;
+    return query;
+}
 
-    if (!adminId) {
-        alert("Admin ID not found.");
-        window.location.href = 'profileHome.html';
-        return;
-    }
+// Return the admin´s restricted users from the GraphQL API
+async function fetchProfiles(query) {
+    const token = sessionStorage.getItem('jwtToken');
 
     try {
-        const response = await fetch(`http://localhost:3001/api/restrictedUser/adminUser/${adminId}`);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query })
+        });
+
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            return;
         }
 
-        const profiles = await response.json();
+        const profiles = result.data.getRestrictedUserByAdmin;
         console.log('Perfiles obtenidos:', profiles);
 
+        return profiles;
+
+    } catch (error) {
+        console.error("Error getting restricted users:", error);
+        alert("Error to get restricted users");
+    }
+
+}
+
+
+//Get all profiles and create cards with the information of each profile
+async function getProfiles() {
+    try {
+        const profiles = await fetchProfiles(queryRestrictedUserCards());
+
+        if (!profiles) return;
+    
         const container = document.getElementById('profiles');
+    
         if (!container) {
             console.error('Element with ID "profiles" not found');
             return;
         }
-
+    
         container.innerHTML = '';
-
+    
         if (!Array.isArray(profiles)) {
             console.error('Received data is not an array:', profiles);
             return;
         }
-
+    
         const row = document.createElement('div');
         row.className = 'row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4';
         container.appendChild(row);
-
+    
         profiles.forEach(profile => {
             const col = document.createElement('div');
             col.className = 'col';
-
+    
             const card = document.createElement('div');
             card.className = 'card h-100 profile-card';
             card.style.cursor = 'pointer';
-
-
+    
             card.addEventListener('click', () => {
                 selectProfile(profile._id);
             });
-
+    
             const avatarImg = profile.avatar
                 ? `<img src="${profile.avatar}" class="card-img-top profile-avatar" alt="Avatar">`
                 : '<div class="no-avatar"><i class="fas fa-user-circle"></i></div>';
-
+    
             card.innerHTML = `
                 <div class="card-body text-center">
                     ${avatarImg}
                     <h5 class="card-title mt-3">${profile.name || 'Sin nombre'}</h5>
                 </div>
             `;
-
+    
             col.appendChild(card);
             row.appendChild(col);
         });
@@ -132,41 +152,46 @@ async function getProfiles() {
 
 //Create a table with the admin´s restricted users
 async function getProfilesTable() {
-    const profiles = await fetchProfiles();
-    if (!profiles || !Array.isArray(profiles)) return;
+    const profiles = await fetchProfiles(queryRestrictedUserTable());
 
-    const container = document.getElementById('profilesTable');
-    if (!container) return;
+    try{
+        if (!profiles) return;
 
-    container.innerHTML = '';
+        const container = document.getElementById('profilesTable');
+        if (!container) return;
 
-    profiles.forEach((profile, index) => {
-        const row = document.createElement('tr');
+        container.innerHTML = '';
 
-        const avatar = profile.avatar
-            ? `<img src="../${profile.avatar}" style="width: 100px; height: 80px; border-radius: 50%;" alt="Avatar">`
-            : '<i class="fas fa-user-circle" style="font-size: 2rem;"></i>';
+        profiles.forEach((profile, index) => {
+            const row = document.createElement('tr');
 
-        row.innerHTML = `
-            <th scope="row">${index + 1}</th>
-            <td>${profile.name || 'Sin nombre'}</td>
-            <td>${profile.age || ''}</td>
-            <td>${profile.pin ? '••••••' : ''}</td>
-            <td>${avatar}</td>
-            <td>
-                <button class="btn btn-primary btn-sm edit-btn" data-id="${profile._id}">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-danger btn-sm delete-btn" data-id="${profile._id}" onclick="deleteProfile('${profile._id}')">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </td>
-        `;
+            const avatar = profile.avatar
+                ? `<img src="../${profile.avatar}" style="width: 100px; height: 80px; border-radius: 50%;" alt="Avatar">`
+                : `<i class="fas fa-user-circle" style="font-size: 2rem;"></i>`;
 
-        container.appendChild(row);
-    });
+            row.innerHTML = `
+                <th scope="row">${index + 1}</th>
+                <td>${profile.name || 'Sin nombre'}</td>
+                <td>${profile.age || ''}</td>
+                <td>${profile.pin ? '••••••' : ''}</td>
+                <td>${avatar}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm edit-btn" data-id="${profile._id}">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${profile._id}" onclick="deleteProfile('${profile._id}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </td>
+            `;
 
-    assignEditEvents();
+            container.appendChild(row);
+            assignEditEvents();
+        });
+    }catch (error) {
+        console.error('Error loading profiles:', error);
+        alert('Error loading profiles. See console for details.');
+    }
 }
 
 
@@ -186,7 +211,7 @@ async function createProfile() {
 
     if (!token) {
         alert("No estás autenticado. Por favor inicia sesión.");
-        window.location.href = '../index.html'; 
+        window.location.href = '../index.html';
         return;
     }
 
