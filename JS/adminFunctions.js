@@ -242,8 +242,7 @@ function setupPinInputs() {
 
 // add the parameters adminId y remover token de sessionStorage
 function updateBackLink() {
-    // Remover el token del sessionStorage (logout)
-    sessionStorage.removeItem('jwtToken');
+
 
     const adminId = getUrlParam('adminId');
     if (!adminId) return;
@@ -257,6 +256,13 @@ function updateBackLink() {
             };
         }
     });
+}
+
+//No elimina la session (Verificar que al abrir la pagina del pin del administrador no se elimine el sessionsStorage)
+function deleteSession() {
+    sessionStorage.removeItem('jwtToken'); 
+    const adminId = getUrlParam('adminId');
+    window.location.href = `profileHome.html?adminId=${adminId}`;
 }
 
 
