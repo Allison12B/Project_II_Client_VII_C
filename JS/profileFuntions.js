@@ -326,6 +326,7 @@ async function deleteProfile(profileId) {
 async function pinFormValidated(event) {
     event.preventDefault();
 
+    const token = sessionStorage.getItem('jwtToken');
     const adminId = getUrlParam('adminId');
     const profileId = getUrlParam('profileId');
 
@@ -349,6 +350,7 @@ async function pinFormValidated(event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 pin: Number(pin)
