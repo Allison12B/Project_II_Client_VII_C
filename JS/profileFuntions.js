@@ -181,7 +181,7 @@ function selectProfile(profileId) {
 // Save a new profile
 async function createProfile() {
     const adminUserId = getUrlParam('adminId');
-    const token = localStorage.getItem('jwtToken');
+    const token = sessionStorage.getItem('jwtToken');
     alert(token);//No está capturando el token, retorna un valor null (comentarion para Allison)
 
     if (!token) {
