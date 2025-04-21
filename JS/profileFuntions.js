@@ -249,6 +249,8 @@ async function createProfile() {
 async function updateProfile(profileId) {
     if (!profileId) return;
 
+    const token = sessionStorage.getItem('jwtToken');
+
     let profile = {
         name: document.getElementById('nameEdit').value,
         age: document.getElementById('ageEdit').value,
@@ -260,7 +262,8 @@ async function updateProfile(profileId) {
         const response = await fetch(`http://localhost:3001/api/restrictedUser/${profileId}`, {
             method: "PUT",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(profile)
         });
@@ -282,6 +285,8 @@ async function updateProfile(profileId) {
 
 //Delete an specific profile
 async function deleteProfile(profileId) {
+    const token = sessionStorage.getItem('jwtToken');
+
     if (!profileId) {
         console.error('No profile ID provided');
         return;
@@ -295,7 +300,8 @@ async function deleteProfile(profileId) {
         const response = await fetch(`http://localhost:3001/api/restrictedUser/${profileId}`, {
             method: "DELETE",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             }
         });
 
