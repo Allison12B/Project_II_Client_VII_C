@@ -69,7 +69,7 @@ async function getVideos() {
 
 //Create a new video
 async function createVideo() {
-    
+    const token = sessionStorage.getItem('jwtToken');
     const name = document.getElementById('videoName').value;
     const url = document.getElementById('videoUrl').value;
     const description = document.getElementById('descriptionVideo').value;
@@ -95,6 +95,7 @@ async function createVideo() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(newVideo),
         });
