@@ -13,51 +13,41 @@ function clearInputs(inputs) {
 
 //Login logic
 async function findAdmin(event) {
-    // Prevent default form submission
     event.preventDefault();
 
-    const email = document.getElementById('emailKey').value;
-    const password = document.getElementById('passwordKey').value;
+    const email = document.getElementById('emailKey').value.trim();
+    const password = document.getElementById('passwordKey').value.trim();
 
-    // First check if fields are empty
     if (!email || !password) {
         alert("Please enter both email and password");
-        return;
-    }
-
-    // Data type validate 
-    if (
-        typeof email !== 'string' || email.trim() === '' ||
-        typeof password !== 'string' || password.trim() === ''
-    ) {
-        alert('Please provide valid email and password');
         return;
     }
 
     try {
         const response = await fetch('http://localhost:3001/api/adminUserLogin', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
 
         const data = await response.json();
 
-        const inputs = document.querySelectorAll('input');
         if (!response.ok) {
-            clearInputs(inputs); 
-            inputs[0].focus();
-        } else if(data.success && data.token) {
-            // Guardar el token en localStorage
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            document.getElementById('emailKey').focus();
+            alert(data.error || "Invalid login");
+            return;
+        }
+
+        if (data.success && data.token) {
             sessionStorage.setItem('jwtToken', data.token);
-            // Redirigir
             window.location.href = `profileHome.html?adminId=${data.data.id}`;
+        } else {
+            alert("Login failed. No token received.");
         }
     } catch (error) {
         console.error('Login error:', error);
-        alert(error.message || "An error occurred during login");
+        alert("An error occurred. Please try again.");
     }
 }
 
@@ -258,18 +248,10 @@ function updateBackLink() {
     });
 }
 
-//No elimina la session (Verificar que al abrir la pagina del pin del administrador no se elimine el sessionsStorage)
-function deleteSession() {
-    sessionStorage.removeItem('jwtToken'); 
-    const adminId = getUrlParam('adminId');
-    window.location.href = `profileHome.html?adminId=${adminId}`;
-}
-
 
 document.addEventListener('DOMContentLoaded', function () {
     setupPinInputs();
     updateBackLink();
-
 
     const form = document.querySelector('form');
     if (form) {

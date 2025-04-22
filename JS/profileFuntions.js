@@ -7,6 +7,12 @@ function assignEditEvents() {
     });
 }
 
+const token = sessionStorage.getItem('jwtToken');
+if (!token) {
+    // Si no hay token, redirige al login
+    window.location.href = "index.html";
+}
+
 //Get params
 function getUrlParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -454,6 +460,11 @@ function updateBackLink() {
             };
         }
     });
+}
+
+function deleteSession() {
+    sessionStorage.removeItem('jwtToken'); 
+    window.location.href = 'index.html';
 }
 
 
