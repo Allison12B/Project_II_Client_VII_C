@@ -1,3 +1,8 @@
+const token = sessionStorage.getItem('jwtToken');
+if (!token) {
+    window.location.href = "index.html";
+}
+
 //Find the params adminId in the url
 function getAdminIdFromUrl() {
     const params = new URLSearchParams(window.location.search);

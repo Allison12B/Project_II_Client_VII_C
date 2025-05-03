@@ -1,3 +1,9 @@
+const token = sessionStorage.getItem('jwtToken');
+if (!token) {
+    // Si no hay token, redirige al login
+    window.location.href = "index.html";
+}
+
 function assignEditEvents() {
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -7,11 +13,6 @@ function assignEditEvents() {
     });
 }
 
-const token = sessionStorage.getItem('jwtToken');
-if (!token) {
-    // Si no hay token, redirige al login
-    window.location.href = "index.html";
-}
 
 //Get params
 function getUrlParam(param) {
@@ -469,6 +470,12 @@ function deleteSession() {
 }
 
 
+// Calls the function when the page load
+function isProfileEdit() {
+    return window.location.pathname.includes("profileEdit.html");
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
 
     if (document.getElementById('profiles')) {
@@ -480,9 +487,12 @@ document.addEventListener('DOMContentLoaded', function () {
     setupPinInputs();
     updateBackLink();
 
-
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', pinFormValidated);
+    }
+
+    if(isProfileEdit()) {
+
     }
 });
