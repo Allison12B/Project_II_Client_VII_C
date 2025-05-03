@@ -36,6 +36,42 @@ function createVideoButton() {
     }
 }
 
+// Query of graphQL API
+
+
+// Return the admin´s restricted users from the GraphQL API
+async function fetchGraphQL(query) {
+    const token = sessionStorage.getItem('jwtToken');
+
+    try {
+
+        const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query })
+        });
+
+        const result = await response.json();
+        console.log("GraphQL result:", result);
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            return;
+        }
+
+        const data = result.data;
+
+        return data;
+
+    } catch (error) {
+        console.error("Error getting data:", error);
+        alert("Error to get data");
+    }
+}
+
 // Get all the videos
 async function getVideos() {
     try {
