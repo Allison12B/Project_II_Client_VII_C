@@ -185,8 +185,12 @@ async function getPlaylistsByAdmin() {
                 <td>${playlist.name}</td>
                 <td>${countVideos}</td>
                 <td>
-                    <a href="" class="btn btn-warning btn-sm">Edit</a>
-                    <button class="btn btn-danger btn-sm" onclick="deletePlayList('${playlist._id}')">Delete</button>
+                    <button class="btn btn-primary btn-sm edit-btn" data-id="${playlist._id}">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${playlist._id}" onclick="deletePlayList('${playlist._id}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
                 </td>
             `;
 
