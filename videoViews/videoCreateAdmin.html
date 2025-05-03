@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../css/videoCreateAdmin.css">
     <link rel="stylesheet" href="../css/navBarSetting.css">
 
-    
+    <script src="../JS/videoFunctions.js"></script>
 </head>
 
 <body>
@@ -49,9 +49,16 @@
                 </div>
             </div>
 
+            <label class="selecPlaylist">Select playlist</label>
+            <div class="form-row">
+                <div class="playlistContainer" id="playlistContainer">
+                    
+                </div>
+            </div>
+
             <div class="button-row">
                 <button type="button" class="btn btn-primary" onclick="createVideo(); return false;">Save</button>
-                <button type="button" class="btn btn-warning" onclick="goBackWithAdminId();;">Back</button>
+                <button type="button" class="btn btn-warning" onclick="goBackWithAdminId();">Back</button>
             </div>
         </form>
     </div>
