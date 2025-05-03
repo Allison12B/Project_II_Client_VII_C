@@ -43,6 +43,7 @@ function queryGetVideoByPlaylist(id) {
             getVideoByPlayList(id: "${id}") {
                 _id
                 name
+                url
                 description
             }
         }
@@ -61,6 +62,18 @@ function queryVideosByAdminID() {
                 playLists {
                     _id
                 }
+            }
+        }
+    `;
+    return query;
+}
+
+function queryPlaylistByCheckBox() {
+    const query = `
+        {
+            getPlayListByAdminUser {
+            _id
+            name
             }
         }
     `;
@@ -130,13 +143,92 @@ async function getVideos() {
     }
 }
 
+//Get admin´s playlist in checkbox with graphQl
+async function getAdminPlaylists() {
+    try {
+        const playlistData = await fetchGraphQL(queryPlaylistByCheckBox());
+        const playlists = playlistData.getPlayListByAdminUser;
+
+        console.log("Playlists desde el cliente: ", playlists);
+
+        if (!Array.isArray(playlists) || playlists.length === 0) {
+            console.log("No playlists found for this admin");
+        }
+
+        const container = document.getElementById("playlistContainer");
+        container.innerHTML = ""; 
+
+        playlists.forEach(playlist => {
+            const playlistDiv = document.createElement("div");
+            playlistDiv.classList.add("form-check");
+
+            playlistDiv.innerHTML = `
+                <input class="form-check-input" type="checkbox" value="${playlist._id}" id="playlist-${playlist._id}">
+                <label class="form-check-label" for="playlist-${playlist._id}">${playlist.name}</label>
+            `;
+
+            container.appendChild(playlistDiv);
+        });
+
+    } catch (error) {
+        console.error("Error to getting playlists:", error);
+    }
+}
+
+//Get playlist´s videos graphQL
+async function getVideosByPlaylist() {
+    try {
+        const response = await fetchGraphQL(queryGetVideoByPlaylist(getplaylistIdFromUrl()));
+
+        const videos = response.getVideoByPlayList;
+
+        const tableBody = document.getElementById("videosRestrictedUserTableBody");
+        tableBody.innerHTML = ""; 
+
+        if (videos.length === 0) {
+            console.warn("No videos found for this playlist");
+        }
+
+    
+        videos.forEach((video, index) => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <th scope="row">${index + 1}</th>
+                <td>${video.name}</td>
+                <td>${video.url}</td>
+                <td>${video.description || 'No description'}</td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Error fetching videos:", error);
+    }
+}
+
+// Función para obtener los usuarios seleccionados
+function getSelectedPlaylist() {
+    const selectedPlaylist = [];
+
+    const checkboxes = document.querySelectorAll(".form-check-input:checked");
+
+    checkboxes.forEach(checkbox => {
+        selectedPlaylist.push(checkbox.value);
+    });
+
+    console.log("Playlist seleccionados:", selectedPlaylist);
+    return selectedPlaylist;
+}
+
 //Create a new video
 async function createVideo() {
     const token = sessionStorage.getItem('jwtToken');
     const name = document.getElementById('videoName').value;
     const url = document.getElementById('videoUrl').value;
     const description = document.getElementById('descriptionVideo').value;
-    const playLists = []; 
+    const playLists = getSelectedPlaylist(); 
     const admin = getAdminIdFromUrl();
 
     
@@ -216,94 +308,7 @@ async function deleteVideo(videoId) {
     }
 }
 
-//Get admin´s playlist in checkbox
-async function getAdminPlaylists() {
-    const adminId = getAdminIdFromUrl(); 
-    if (!adminId) {
-        console.error("Admin ID not found in URL");
-        return;
-    }
 
-    try {
-        console.log("Entró en el método de cargar los checkboxes de playlists");
-        
-        const response = await fetch(`http://localhost:3001/api/playList/adminUser/${adminId}`);
-        const playlists = await response.json();
-        
-        console.log("Playlists desde el cliente: ", playlists);
-
-        if (!Array.isArray(playlists) || playlists.length === 0) {
-            console.log("No playlists found for this admin");
-            return;
-        }
-
-        const container = document.getElementById("playlistsContainer");
-        container.innerHTML = ""; 
-
-        playlists.forEach(playlist => {
-            const playlistDiv = document.createElement("div");
-            playlistDiv.classList.add("form-check");
-
-            playlistDiv.innerHTML = `
-                <input class="form-check-input" type="checkbox" value="${playlist._id}" id="playlist-${playlist._id}">
-                <label class="form-check-label" for="playlist-${playlist._id}">${playlist.name}</label>
-            `;
-
-            container.appendChild(playlistDiv);
-        });
-
-    } catch (error) {
-        console.error("Error to getting playlists:", error);
-    }
-}
-
-//Get playlist´s videos
-async function getVideosByPlaylist() {
-    const playListId = getplaylistIdFromUrl(); 
-
-    if (!playListId) {
-        console.error("Error: Playlist ID is required.");
-        return;
-    }
-
-    try {
-        
-        const response = await fetch(`http://localhost:3001/api/video/playList/${playListId}`);
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Error fetching videos.");
-        }
-
-        const videos = await response.json();
-        console.log("Videos for playlist:", videos);
-
-        const tableBody = document.getElementById("videosRestrictedUserTableBody");
-        tableBody.innerHTML = ""; 
-
-        if (videos.length === 0) {
-            console.warn("No videos found for this playlist");
-            return;
-        }
-
-    
-        videos.forEach((video, index) => {
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <th scope="row">${index + 1}</th>
-                <td>${video.name}</td>
-                <td>${video.url}</td>
-                <td>${video.description || 'No description'}</td>
-            `;
-
-            tableBody.appendChild(row);
-        });
-
-    } catch (error) {
-        console.error("Error fetching videos:", error);
-    }
-}
 
 
 // Calls the function when the page load
@@ -311,6 +316,9 @@ function isVideoAdminPage() {
     return window.location.pathname.includes("videoAdmin.html");
 }
 
+function isVideoCreateAdminPage() {
+    return window.location.pathname.includes("videoCreateAdmin.html");
+}
 
 function isVideoEditAdminPage() {
     return window.location.pathname.includes("videoEditAdmin.html");
@@ -325,6 +333,10 @@ document.addEventListener("DOMContentLoaded", function() {
     if (isVideoAdminPage()) {
         getVideos(); 
         createVideoButton();
+    }
+
+    if(isVideoCreateAdminPage()) {
+        getAdminPlaylists()
     }
 
     if (isVideoEditAdminPage()) {
