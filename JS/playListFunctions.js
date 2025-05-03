@@ -77,38 +77,6 @@ function queryGetPlaylistByRestrictedUser(id) {
     return query;
 }
 
-//Aquí no va
-function queryGetVideoByPlaylist(id) {
-    const query =  `
-        {
-            getVideoByPlayList(id: "${id}") {
-                _id
-                name
-                description
-            }
-        }
-    `;
-    return query;
-}
-
-//Aquí no va
-function queryVideosByAdminID() {
-    const query = `
-        {
-            getAllVideos {
-                _id
-                description
-                name
-                url
-                playLists {
-                    _id
-                }
-            }
-        }
-    `;
-    return query;
-}
-
 // Request of graphQL API
 async function fetchGraphQL(query) {
     const token = sessionStorage.getItem('jwtToken');

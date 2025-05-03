@@ -37,7 +37,35 @@ function createVideoButton() {
 }
 
 // Query of graphQL API
+function queryGetVideoByPlaylist(id) {
+    const query =  `
+        {
+            getVideoByPlayList(id: "${id}") {
+                _id
+                name
+                description
+            }
+        }
+    `;
+    return query;
+}
 
+function queryVideosByAdminID() {
+    const query = `
+        {
+            getAllVideos {
+                _id
+                description
+                name
+                url
+                playLists {
+                    _id
+                }
+            }
+        }
+    `;
+    return query;
+}
 
 // Return the admin´s restricted users from the GraphQL API
 async function fetchGraphQL(query) {
@@ -72,18 +100,11 @@ async function fetchGraphQL(query) {
     }
 }
 
-// Get all the videos
+// Get all the videos with graphQL
 async function getVideos() {
     try {
-        const response = await fetch("http://localhost:3001/api/video");
-        const videos = await response.json();
-        console.log("Videos obtenidos:", videos); // Confirmación en consola
-
-        // Verificar si hay videos
-        if (!videos.length) {
-            console.warn("No videos found");
-            return;
-        }
+        const videoData = await fetchGraphQL( queryVideosByAdminID());
+        const videos = videoData.getAllVideos;
 
         const tableBody = document.getElementById("videosTableBody");
         tableBody.innerHTML = ""; // Limpiar la tabla antes de agregar nuevos datos
