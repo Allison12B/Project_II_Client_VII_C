@@ -54,6 +54,23 @@ function queryRestrictedUserByCheckBox() {
     return query;
 }
 
+function queryVideosByAdminID() {
+    const query = `
+        {
+            getAllVideos {
+                _id
+                description
+                name
+                url
+                playLists {
+                    _id
+                }
+            }
+        }
+    `;
+    return query;
+}
+
 // Request of graphQL API
 // Return the admin´s playlist from the GraphQL API
 async function fetchPlaylist(query) {
@@ -75,9 +92,9 @@ async function fetchPlaylist(query) {
             return;
         }
         
-        const profiles = result.data.getPlayListByAdminUser;
-        console.log('Playlist:', profiles);
-        return profiles;
+        const playlist = result.data.getPlayListByAdminUser;
+        console.log('Playlist:', playlist);
+        return playlist;
 
     } catch (error) {
         console.error("Error getting playlist:", error);
@@ -115,7 +132,38 @@ async function fetchProfiles(query) {
         console.error("Error getting restricted users:", error);
         alert("Error to get restricted users");
     }
+}
 
+// Return the admin´s restricted users from the GraphQL API
+async function fetchVideos(query) {
+    const token = sessionStorage.getItem('jwtToken');
+
+    try {
+        const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query })
+        });
+
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            return;
+        }
+
+        const videos = result.data.getAllVideos;
+        console.log('Videos:', videos);
+
+        return videos;
+
+    } catch (error) {
+        console.error("Error getting videos:", error);
+        alert("Error to get videos");
+    }
 }
 
 
