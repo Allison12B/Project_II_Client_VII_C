@@ -64,7 +64,7 @@ function queryRestrictedUserTable() {
 }
 
 // Return the admin´s restricted users from the GraphQL API
-async function fetchProfiles(query) {
+async function fetchGraphQL(query) {
     const token = sessionStorage.getItem('jwtToken');
 
     try {
@@ -79,29 +79,33 @@ async function fetchProfiles(query) {
         });
 
         const result = await response.json();
+        console.log("GraphQL result:", result);
 
         if (result.errors) {
             console.error('GraphQL errors:', result.errors);
             return;
         }
 
-        const profiles = result.data.getRestrictedUserByAdmin;
-        console.log('Perfiles obtenidos:', profiles);
+        const data = result.data;
 
-        return profiles;
+        return data;
 
     } catch (error) {
-        console.error("Error getting restricted users:", error);
-        alert("Error to get restricted users");
+        console.error("Error getting data:", error);
+        alert("Error to get data");
     }
-
 }
 
 
 //Get all profiles and create cards with the information of each profile
 async function getProfiles() {
     try {
-        const profiles = await fetchProfiles(queryRestrictedUserCards());
+        const profilesData = await fetchGraphQL(queryRestrictedUserCards());
+
+        const profiles = profilesData.getRestrictedUserByAdmin;
+
+
+        console.log('Perfiles obtenidos:', profiles);
 
         if (!profiles) return;
     
@@ -158,9 +162,9 @@ async function getProfiles() {
 
 //Create a table with the admin´s restricted users
 async function getProfilesTable() {
-    const profiles = await fetchProfiles(queryRestrictedUserTable());
-
     try{
+        const profilesData = await fetchGraphQL(queryRestrictedUserTable());
+        const profiles = profilesData.getRestrictedUserByAdmin;
         if (!profiles) return;
 
         const container = document.getElementById('profilesTable');
@@ -199,9 +203,6 @@ async function getProfilesTable() {
         alert('Error loading profiles. See console for details.');
     }
 }
-
-
-document.addEventListener('DOMContentLoaded', getProfiles);
 
 // Go to the view of restricted users playlists
 function selectProfile(profileId) {
