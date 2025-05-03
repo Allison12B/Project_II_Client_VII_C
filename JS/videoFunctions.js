@@ -25,17 +25,23 @@ function goBackWithAdminId() {
     }
 }
 
+//Set a buttom to redirect to crate video page
+function createVideoButton() {
+    const adminId = getAdminIdFromUrl();
+    if(adminId != null) {
+        const createButtonContainer = document.getElementById("createVideoButton");
+        createButtonContainer.innerHTML = `
+            <a href="../videoViews/videoCreateAdmin.html?adminId=${getAdminIdFromUrl()}" class="btn btn-success mt-3 mb-3">Crear</a>
+        `;
+    }
+}
+
 // Get all the videos
 async function getVideos() {
     try {
         const response = await fetch("http://localhost:3001/api/video");
         const videos = await response.json();
         console.log("Videos obtenidos:", videos); // Confirmación en consola
-
-        const createButtonContainer = document.getElementById("createVideoButton");
-        createButtonContainer.innerHTML = `
-            <a href="../videoViews/videoCreateAdmin.html?adminId=${getAdminIdFromUrl()}" class="btn btn-success mt-3 mb-3">Crear</a>
-        `;
 
         // Verificar si hay videos
         if (!videos.length) {
@@ -74,6 +80,7 @@ async function createVideo() {
     const url = document.getElementById('videoUrl').value;
     const description = document.getElementById('descriptionVideo').value;
     const playLists = []; 
+    const admin = getAdminIdFromUrl();
 
     
     if (!name || !url) {
@@ -86,7 +93,8 @@ async function createVideo() {
         name: name,
         url: url,
         description: description,
-        playLists: playLists
+        playLists: playLists,
+        adminId: admin
     };
 
     try {
@@ -240,12 +248,6 @@ async function getVideosByPlaylist() {
     }
 }
 
-/* Llamar a la función cuando la página cargue
-document.addEventListener("DOMContentLoaded", function() {
-    getVideosByPlaylist(); 
-});*/
-
-
 
 // Calls the function when the page load
 function isVideoAdminPage() {
@@ -265,6 +267,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (isVideoAdminPage()) {
         getVideos(); 
+        createVideoButton();
     }
 
     if (isVideoEditAdminPage()) {
