@@ -54,6 +54,44 @@ function queryRestrictedUserByCheckBox() {
     return query;
 }
 
+function queryGetVideoCount(id) {
+    const query =  `
+        {
+            getVideoByPlayList(id: "${id}") {
+                _id
+            }
+        }
+    `;
+    return query;
+}
+
+function queryGetPlaylistByRestrictedUser(id) {
+    const query =  `
+        {
+            getPlayListByRestrictedUser(id: "${id}") {
+                _id
+                name
+            }
+        }
+    `;
+    return query;
+}
+
+//Aquí no va
+function queryGetVideoByPlaylist(id) {
+    const query =  `
+        {
+            getVideoByPlayList(id: "${id}") {
+                _id
+                name
+                description
+            }
+        }
+    `;
+    return query;
+}
+
+//Aquí no va
 function queryVideosByAdminID() {
     const query = `
         {
@@ -72,8 +110,7 @@ function queryVideosByAdminID() {
 }
 
 // Request of graphQL API
-// Return the admin´s playlist from the GraphQL API
-async function fetchPlaylist(query) {
+async function fetchGraphQL(query) {
     const token = sessionStorage.getItem('jwtToken');
     try {
         const response = await fetch("http://localhost:4000/graphql", {
@@ -91,106 +128,35 @@ async function fetchPlaylist(query) {
             console.error('GraphQL errors:', result.errors);
             return;
         }
-        
-        const playlist = result.data.getPlayListByAdminUser;
-        console.log('Playlist:', playlist);
-        return playlist;
+
+        const data = result.data;
+        return data;
 
     } catch (error) {
-        console.error("Error getting playlist:", error);
-        alert("Error to get playlist");
-    }
-}
-
-// Return the admin´s restricted users from the GraphQL API
-async function fetchProfiles(query) {
-    const token = sessionStorage.getItem('jwtToken');
-
-    try {
-        const response = await fetch("http://localhost:4000/graphql", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ query })
-        });
-
-        const result = await response.json();
-
-        if (result.errors) {
-            console.error('GraphQL errors:', result.errors);
-            return;
-        }
-
-        const profiles = result.data.getRestrictedUserByAdmin;
-        console.log('Profiles:', profiles);
-
-        return profiles;
-
-    } catch (error) {
-        console.error("Error getting restricted users:", error);
-        alert("Error to get restricted users");
-    }
-}
-
-// Return the admin´s restricted users from the GraphQL API
-async function fetchVideos(query) {
-    const token = sessionStorage.getItem('jwtToken');
-
-    try {
-        const response = await fetch("http://localhost:4000/graphql", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ query })
-        });
-
-        const result = await response.json();
-
-        if (result.errors) {
-            console.error('GraphQL errors:', result.errors);
-            return;
-        }
-
-        const videos = result.data.getAllVideos;
-        console.log('Videos:', videos);
-
-        return videos;
-
-    } catch (error) {
-        console.error("Error getting videos:", error);
-        alert("Error to get videos");
+        console.error("Error getting data:", error);
+        alert("Error to get data");
     }
 }
 
 
-// Count of videos playlist
+// Count of videos playlist with graphQL
 async function getVideoCountByPlayList(playListId) {
-
-}
-
-//Get all playlist by Restricted USer
-async function getPlaylistsByRestrictedUser() {
-    const restrictedUserId = getRestrictedUserIdFromUrl()
-    
-    if (!restrictedUserId) {
-        console.error("Error: restrictedUserId is required.");
-        return;
-    }
-
     try {
-        const response = await fetch(`http://localhost:3001/api/playList/retrictedUser/${restrictedUserId}`);
+        const videosData = await fetchGraphQL(queryGetVideoCount(playListId));
+        const videos = videosData.getVideoByPlayList;
+        return videos.length;
+    } catch (error) {
+        console.error("Error getting data:", error);
+        alert("Error to get video count");
+    }
+}
+    
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Error fetching playlists.");
-        }
-
-        const playlists = await response.json();
-        console.log("Playlists for restricted user:", playlists);
+//Get all playlist by Restricted USer with graphQL
+async function getPlaylistsByRestrictedUser() {
+    try {
+        const playListData = await fetchGraphQL(queryGetPlaylistByRestrictedUser(getRestrictedUserIdFromUrl()));
+        const playlists = playListData.getPlayListByRestrictedUser;
         
         const tableBody = document.getElementById("playListRestrictedTableBody");
         tableBody.innerHTML = "";  
@@ -201,8 +167,7 @@ async function getPlaylistsByRestrictedUser() {
         }
 
         for (const [index, playlist] of playlists.entries()) {
-            
-            //BORRAR ESTOO!!!!!
+        
             const countVideos = await getVideoCountByPlayList(playlist._id); 
             const row = document.createElement("tr");
 
@@ -225,10 +190,11 @@ async function getPlaylistsByRestrictedUser() {
     }
 }
 
-// Get all playlist with reference an admin 
+// Get all playlist with reference an admin  (GraphQL)
 async function getPlaylistsByAdmin() {
     try {
-        const playlists = await fetchPlaylist(queryPlaylistByTable());
+        const playlistData = await fetchGraphQL(queryPlaylistByTable());
+        const playlists = playlistData.getPlayListByAdminUser;
         
         console.log("Playlists obtenidas:", playlists); 
 
@@ -238,13 +204,12 @@ async function getPlaylistsByAdmin() {
         }
 
         //CAMBIAR A UN MÉTODO QUE CAPTURE LA CANTIDAD DE VIDEO DE UNA LISTA
-        const countVideos = playlists.length;
 
         const tableBody = document.getElementById("playListTableBody");
         tableBody.innerHTML = ""; 
 
         for (const [index, playlist] of playlists.entries()) {
-
+            const countVideos = await getVideoCountByPlayList(playlist._id);
             const row = document.createElement("tr");
 
             row.innerHTML = `
@@ -296,7 +261,8 @@ async function deletePlayList(playListId) {
 //Take restricted users in check box WITH GraphQL
 async function getRestrictedUsers() {
     try {
-        const restrictedUsers =  await fetchProfiles(queryRestrictedUserByCheckBox());
+        const restrictedUsersData =  await fetchGraphQL(queryRestrictedUserByCheckBox());
+        const restrictedUsers = restrictedUsersData.getRestrictedUserByAdmin;
         console.log("Mensaje desde el cliente, usuarios restringidos: ", restrictedUsers)
 
         
