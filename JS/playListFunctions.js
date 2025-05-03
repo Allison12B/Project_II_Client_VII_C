@@ -18,29 +18,110 @@ function getRestrictedUserIdFromUrl() {
     return params.get("profileId"); 
 }
 
-// Count of videos playlist
-async function getVideoCountByPlayList(playListId) {
+//Set a buttom to redirect to crate playlist page
+function createPlaylistButton() {
+    const adminId = getAdminIdFromUrl();
+    if(adminId != null) {
+        const createButtonContainer = document.getElementById("createPlaylistButton");
+        createButtonContainer.innerHTML = `
+            <a href="playListCreateAdmin.html?adminId=${adminId}" class="btn btn-success mt-3 mb-3">Crear</a>
+        `;
+    }
+}
+
+// Query of graphQL API
+function queryPlaylistByTable() {
+    const query = `
+        {
+            getPlayListByAdminUser {
+            _id
+            name
+            }
+        }
+    `;
+    return query;
+}
+
+function queryRestrictedUserByCheckBox() {
+    const query = `
+        {
+            getRestrictedUserByAdmin {
+                _id
+                name
+            }
+        }
+    `;
+    return query;
+}
+
+// Request of graphQL API
+// Return the admin´s playlist from the GraphQL API
+async function fetchPlaylist(query) {
+    const token = sessionStorage.getItem('jwtToken');
     try {
-        const response = await fetch(`http://127.0.0.1:3001/api/video/playList/${playListId}`);
+        const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query })
+        });
 
-        if (!response.ok) {
-            console.error("Error to getting the videos: ", response.status, response.statusText);
-            return 0; 
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            return;
         }
-
-        const videos = await response.json();
         
-        if (!Array.isArray(videos)) {
-            console.error("It isn´t a array:", videos);
-            return 0; 
-        }
-
-        return videos.length;
+        const profiles = result.data.getPlayListByAdminUser;
+        console.log('Playlist:', profiles);
+        return profiles;
 
     } catch (error) {
-        console.error("Error to getting videos count:", error);
-        return 0; 
+        console.error("Error getting playlist:", error);
+        alert("Error to get playlist");
     }
+}
+
+// Return the admin´s restricted users from the GraphQL API
+async function fetchProfiles(query) {
+    const token = sessionStorage.getItem('jwtToken');
+
+    try {
+        const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query })
+        });
+
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            return;
+        }
+
+        const profiles = result.data.getRestrictedUserByAdmin;
+        console.log('Profiles:', profiles);
+
+        return profiles;
+
+    } catch (error) {
+        console.error("Error getting restricted users:", error);
+        alert("Error to get restricted users");
+    }
+
+}
+
+
+// Count of videos playlist
+async function getVideoCountByPlayList(playListId) {
+
 }
 
 //Get all playlist by Restricted USer
@@ -73,6 +154,7 @@ async function getPlaylistsByRestrictedUser() {
 
         for (const [index, playlist] of playlists.entries()) {
             
+            //BORRAR ESTOO!!!!!
             const countVideos = await getVideoCountByPlayList(playlist._id); 
             const row = document.createElement("tr");
 
@@ -98,32 +180,22 @@ async function getPlaylistsByRestrictedUser() {
 // Get all playlist with reference an admin 
 async function getPlaylistsByAdmin() {
     try {
-        const adminId = getAdminIdFromUrl(); 
-        if (!adminId) {
-            console.error("Admin ID not found in URL");
-            return;
-        }
+        const playlists = await fetchPlaylist(queryPlaylistByTable());
         
-
-        const response = await fetch(`http://localhost:3001/api/playList/adminUser/${adminId}`);
-        const playlists = await response.json();
         console.log("Playlists obtenidas:", playlists); 
 
-        const createButtonContainer = document.getElementById("createPlaylistButton");
-        createButtonContainer.innerHTML = `
-            <a href="playListCreateAdmin.html?adminId=${adminId}" class="btn btn-success mt-3 mb-3">Crear</a>
-        `;
-
         if (playlists.length === 0) {
-            console.warn("No playlists found");
+            console.alert("This admin doesn´t has playlists");
             return;
         }
+
+        //CAMBIAR A UN MÉTODO QUE CAPTURE LA CANTIDAD DE VIDEO DE UNA LISTA
+        const countVideos = playlists.length;
 
         const tableBody = document.getElementById("playListTableBody");
         tableBody.innerHTML = ""; 
 
         for (const [index, playlist] of playlists.entries()) {
-            const countVideos = await getVideoCountByPlayList(playlist._id); 
 
             const row = document.createElement("tr");
 
@@ -173,22 +245,11 @@ async function deletePlayList(playListId) {
     }
 }
 
-//Take restricted users in check box
+//Take restricted users in check box WITH GraphQL
 async function getRestrictedUsers() {
-    const adminId = getAdminIdFromUrl(); 
-    if (!adminId) {
-        console.error("Admin ID not found in URL");
-        return;
-    }
-
     try {
-        console.log("Entró en el método de cargar los checkbox");
-        
-        const response = await fetch(`http://localhost:3001/api/restrictedUser/adminUser/${adminId}`);
-
-        
-        const restrictedUsers = await response.json();
-        console.log("Desde el cliente: ", restrictedUsers)
+        const restrictedUsers =  await fetchProfiles(queryRestrictedUserByCheckBox());
+        console.log("Mensaje desde el cliente, usuarios restringidos: ", restrictedUsers)
 
         
         if (restrictedUsers.length === 0) {
@@ -265,16 +326,16 @@ async function createPlaylist() {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Playlist creada exitosamente!");
-            console.log("Nueva Playlist:", data);
+            alert("Playlist was create succecfull!");
+            console.log("New Playlist:", data);
             goBackWithAdminId();
         } else {
-            console.error("Error al crear la playlist:", data);
-            alert("Error: " + (data.error || "No se pudo crear la playlist"));
+            console.error("Error when try create playlist:", data);
+            alert("Error: " + (data.error || "Isn´t possible create playlist"));
         }
     } catch (error) {
-        console.error("Error en la solicitud:", error);
-        alert("Hubo un problema al crear la playlist.");
+        console.error("Error in the request:", error);
+        alert("Error in the request. Check the console");
     }
 }
 
@@ -298,6 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (isPlayListAdminPage()) {
         getPlaylistsByAdmin(); 
+        createPlaylistButton();
     }
 
     if (isCreatePlaylistPage()) {
