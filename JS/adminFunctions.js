@@ -15,6 +15,8 @@ function clearInputs(inputs) {
 async function findAdmin(event) {
     event.preventDefault();
 
+    const token = sessionStorage.getItem('jwtToken');
+    console.log("Toekn: " + token);
     const email = document.getElementById('emailKey').value.trim();
     const password = document.getElementById('passwordKey').value.trim();
 
@@ -26,11 +28,16 @@ async function findAdmin(event) {
     try {
         const response = await fetch('http://localhost:3001/api/adminUserLogin', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({ email, password })
         });
 
         const data = await response.json();
+        console.log(data);  // Agrega un log para ver lo que devuelve el servidor.
+
 
         if (!response.ok) {
             document.querySelectorAll('input').forEach(input => input.value = '');
@@ -41,13 +48,63 @@ async function findAdmin(event) {
 
         if (data.success && data.token) {
             sessionStorage.setItem('jwtToken', data.token);
-            window.location.href = `profileHome.html?adminId=${data.data.id}`;
-        } else {
+            console.log("New token saved: " + data.token);
+            window.location.href = `adminCodeSMS.html?adminId=${data.data.id}`;
+        }
+
+        else {
             alert("Login failed. No token received.");
         }
     } catch (error) {
         console.error('Login error:', error);
         alert("An error occurred. Please try again.");
+    }
+}
+
+// Verificate SMS Code
+async function AdminCodeSMS(event) {
+    event.preventDefault();
+
+    const token = sessionStorage.getItem('jwtToken');
+    console.log("Token: " + token);
+
+    const adminId = getUrlParam('adminId');
+
+    const inputs = document.querySelectorAll('.otp-input');
+    const code = Array.from(inputs).map(input => input.value).join('');
+
+    if (code.length !== 6) {
+        return;
+    }
+
+    console.log("Code: " + code);
+    try {
+
+        const response = await fetch(`http://localhost:3001/api/adminUserVerifyCode`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                adminId: adminId,
+                code: Number(code)
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            window.location.href = `./profileHome.html?adminId=${adminId}`;
+        } else {
+            clearInputs(inputs);
+            inputs[0].focus();
+        }
+    } catch (error) {
+        console.error('Verification error:', error);
+        alert(error.message || "An error occurred during verification");
+        clearInputs(inputs);
+        inputs[0].focus();
     }
 }
 
@@ -115,7 +172,7 @@ async function createAdmin(event) {
     }
 }
 
-async function verifyEmail() {  
+async function verifyEmail() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
@@ -145,11 +202,10 @@ async function verifyEmail() {
     }
 }
 
-
 // Verificate data
 async function AdminPinLogin(event) {
     event.preventDefault();
-    
+
     const token = sessionStorage.getItem('jwtToken');
     const adminId = getUrlParam('adminId');
 
@@ -161,7 +217,6 @@ async function AdminPinLogin(event) {
     }
 
     try {
-
         const response = await fetch(`http://localhost:3001/api/adminUserPin/${adminId}`, {
             method: 'POST',
             headers: {
@@ -169,23 +224,23 @@ async function AdminPinLogin(event) {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                pin: Number(pin) 
+                pin: Number(pin)
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            
+
             window.location.href = `./videoViews/videoAdmin.html?adminId=${adminId}`;
         } else {
-            clearInputs(inputs); 
+            clearInputs(inputs);
             inputs[0].focus();
         }
     } catch (error) {
         console.error('Verification error:', error);
         alert(error.message || "An error occurred during verification");
-        clearInputs(inputs); 
+        clearInputs(inputs);
         inputs[0].focus();
     }
 }
@@ -253,11 +308,23 @@ document.addEventListener('DOMContentLoaded', function () {
     setupPinInputs();
     updateBackLink();
 
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', AdminPinLogin);
+    const pinForm = document.getElementById('pinForm');
+    const codeForm = document.getElementById('codeForm');
+    const loginForm = document.getElementById('loginForm');
+
+    if (pinForm) {
+        pinForm.addEventListener('submit', AdminPinLogin);
+    }
+
+    if (codeForm) {
+        codeForm.addEventListener('submit', AdminCodeSMS);
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', findAdmin);
     }
 });
+
 
 
 /**
