@@ -7,11 +7,12 @@
     <title>Edit Restricted User</title>
     <script src="js/profileFuntions.js"></script>
     <link rel="stylesheet" href="../css/restrictedUserCreate.css">
+    <script src="/JS/profileFuntions.js"></script>
 </head>
 
 <body>
     <nav>
-        <a href="./index.html"><img src="images/Logo.jpg" alt="logo"></a>
+        <a href=""><img src="../images/Logo.jpg" alt="logo"></a>
     </nav>
     <div class="form-wrapper">
         <h2>Edit User</h2>
@@ -57,7 +58,7 @@
 
             <div class="button-row">
                 <button type="button" class="btn btn-primary" onclick="updateProfile(); return false;">Save</button>
-                <button type="button" class="btn btn-warning" onclick="window.location.href=`../restrictedUserAdmin.html?adminId=${getUrlParam('adminId')}`">Back</button>
+                <button type="button" class="btn btn-warning" onclick="goBackWithAdminId()">Back</button>
             </div>
 
         </form>
