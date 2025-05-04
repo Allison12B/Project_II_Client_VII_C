@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <!--<script src="https://unpkg.com/@tailwindcss/browser@4"></script>-->
     <script src="JS/adminFunctions.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -22,10 +22,9 @@
             <div class="rectangle">
                 <div class="rectangle-content">
                     <div class="verification-box">
-                        <h2 class="verification-title">Administrator Verification Code</h2>
-                        <p class="verification-subtitle">Enter the 6-digit PIN</p>
+                        <h2 class="verification-title">SMS code</h2>
 
-                        <form onSubmit="AdminPinLogin(event)" class="pin-form" id="pinForm">
+                        <form onSubmit="AdminCodeSMS(event)" class="pin-form" id="codeForm">
                             <div class="otp-input-group">
                                 <input type="number" placeholder="*" class="otp-input" maxlength="1" required autofocus/>
                                 <input type="number" placeholder="*" class="otp-input" maxlength="1" required />
@@ -36,13 +35,13 @@
                             </div>
 
                             <button type="submit" class="verify-btn">
-                                Verify
+                                Verify Code
                             </button>
                         </form>
 
                         <div class="back-container">
-                            <a href="profileHome.html" class="back-btn" id="back-btn">
-                                <i class="fas fa-arrow-left"></i> Back to Profiles
+                            <a href="index.html" class="back-btn" id="back-btn">
+                                <i class="fas fa-arrow-left"></i> Back to Login
                             </a>
                         </div>
                     </div>
