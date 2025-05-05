@@ -21,6 +21,20 @@ function getplaylistIdFromUrl() {
     return params.get("playlistId"); 
 }
 
+//Find the params video
+function getvideoIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("videoId"); 
+}
+
+function redirectToVideoEdit(param) {
+    try {
+        window.location.href = `../videoViews/videoEditAdmin.html?adminId=${getAdminIdFromUrl()}&videoId=${param}`;
+    }catch (error) {
+        console.log("No se puede redirigir a editar video: ", error)
+    }
+}
+
 
 //Go back to the playListAdmin.html
 function goBackWithAdminId() {
@@ -64,9 +78,6 @@ function queryVideosByAdminID() {
                 description
                 name
                 url
-                playLists {
-                    _id
-                }
             }
         }
     `;
@@ -85,6 +96,24 @@ function queryPlaylistByCheckBox() {
     return query;
 }
 
+function queryGetVideoById(id) {
+    const query =  `
+        {
+            getVideoById(id: "${id}") {
+                _id
+                description
+                name
+                url
+                playLists {
+                    _id
+                }
+            }
+        }
+    `;
+    return query;
+}
+
+
 // Return the admin´s restricted users from the GraphQL API
 async function fetchGraphQL(query) {
     const token = sessionStorage.getItem('jwtToken');
@@ -101,7 +130,6 @@ async function fetchGraphQL(query) {
         });
 
         const result = await response.json();
-        console.log("GraphQL result:", result);
 
         if (result.errors) {
             console.error('GraphQL errors:', result.errors);
@@ -109,7 +137,7 @@ async function fetchGraphQL(query) {
         }
 
         const data = result.data;
-
+        console.log("GraphQL result:", data);
         return data;
 
     } catch (error) {
@@ -125,18 +153,18 @@ async function getVideos() {
         const videos = videoData.getAllVideos;
 
         const tableBody = document.getElementById("videosTableBody");
-        tableBody.innerHTML = ""; // Limpiar la tabla antes de agregar nuevos datos
+        tableBody.innerHTML = ""; 
 
         videos.forEach((video, index) => {
             const row = document.createElement("tr");
-
+            
             row.innerHTML = `
                 <th scope="row">${index + 1}</th>
                 <td>${video.name}</td>
                 <td>${video.url}</td>
                 <td>${video.description}</td>
                 <td>
-                    <button class="btn btn-primary btn-sm edit-btn" data-id="${video._id}">
+                    <button class="btn btn-primary btn-sm edit-btn" data-id="${video._id}" onclick="redirectToVideoEdit('${video._id}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
                     <button class="btn btn-danger btn-sm delete-btn" data-id="${video._id}" onclick="deleteVideo('${video._id}')">
@@ -214,6 +242,53 @@ async function getVideosByPlaylist() {
 
     } catch (error) {
         console.error("Error fetching videos:", error);
+    }
+}
+
+//Get a video by ID to edit graphql
+async function getInfoVideoById() {
+    try {
+        const videoData = await fetchGraphQL(queryGetVideoById(getvideoIdFromUrl()));
+        const video = videoData.getVideoById;
+        console.log("video: ", video)
+        let playlist = [];
+        playlist = video.playLists.map(user => user._id);
+
+        document.getElementById('videoName').value = video.name;
+        document.getElementById('videoUrl').value = video.url;
+        document.getElementById('descriptionVideo').value = video.description;
+
+        checkPlaylistByVideo(playlist);
+    }catch (error){
+        console.error("No possible load data in playlist edit páge:", error);
+    }
+}
+
+//Mark all checkboxes with restricted users from a playlist
+async function checkPlaylistByVideo(selectedIds = []) {
+    try {
+        const playlistData =  await await fetchGraphQL(queryPlaylistByCheckBox());
+        const playlist = playlistData.getPlayListByAdminUser;
+
+        const container = document.getElementById("playlistContainer");
+        container.innerHTML = ""; 
+
+        playlist.forEach(user => {
+            const isChecked = selectedIds.includes(user._id) ? "checked" : "";
+
+            const userDiv = document.createElement("div");
+            userDiv.classList.add("form-check");
+
+            userDiv.innerHTML = `
+                <input class="form-check-input" type="checkbox" value="${user._id}" id="user-${user._id}" ${isChecked}>
+                <label class="form-check-label" for="user-${user._id}">${user.name}</label>
+            `;
+
+            container.appendChild(userDiv);
+        });
+
+    } catch (error) {
+        console.error("Error al obtener los usuarios restringidos:", error);
     }
 }
 
@@ -345,10 +420,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if(isVideoCreateAdminPage()) {
+        getInfoVideoById() 
         getAdminPlaylists()
     }
 
     if (isVideoEditAdminPage()) {
+        getInfoVideoById()
         getAdminPlaylists(); 
     }
 
