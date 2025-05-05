@@ -64,19 +64,6 @@ function createVideoButton() {
 }
 
 // Query of graphQL API
-function queryGetVideoByPlaylist(id) {
-    const query =  `
-        {
-            getVideoByPlayList(id: "${id}") {
-                _id
-                name
-                url
-                description
-            }
-        }
-    `;
-    return query;
-}
 
 function queryVideosByAdminID() {
     const query = `
@@ -241,38 +228,6 @@ async function getAdminPlaylists() {
     }
 }
 
-//Get playlist´s videos graphQL
-async function getVideosByPlaylist() {
-    try {
-        const response = await fetchGraphQL(queryGetVideoByPlaylist(getplaylistIdFromUrl()));
-
-        const videos = response.getVideoByPlayList;
-
-        const tableBody = document.getElementById("videosRestrictedUserTableBody");
-        tableBody.innerHTML = ""; 
-
-        if (videos.length === 0) {
-            console.warn("No videos found for this playlist");
-        }
-
-    
-        videos.forEach((video, index) => {
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <th scope="row">${index + 1}</th>
-                <td>${video.name}</td>
-                <td>${video.url}</td>
-                <td>${video.description || 'No description'}</td>
-            `;
-
-            tableBody.appendChild(row);
-        });
-
-    } catch (error) {
-        console.error("Error fetching videos:", error);
-    }
-}
 
 //Search a video
 
