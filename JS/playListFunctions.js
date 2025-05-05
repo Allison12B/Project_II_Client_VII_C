@@ -149,7 +149,7 @@ async function getVideoCountByPlayList(playListId) {
         alert("Error to get video count");
     }
 }
-    
+
 
 //Get all playlist by Restricted USer with graphQL
 async function getPlaylistsByRestrictedUser() {
@@ -395,6 +395,40 @@ async function createPlaylist() {
         alert("Error in the request. Check the console");
     }
 }
+
+//Edit an specific playlist
+async function updatePlaylist() {
+    const playlistId = getPlaylistIdFromUrl();
+    const adminId = getAdminIdFromUrl(); 
+    const token = sessionStorage.getItem('jwtToken');
+
+    const name = document.getElementById("videoName").value.trim();
+
+    const selectedUserIds = getSelectedUsers();
+
+    const response = await fetch(`http://localhost:3001/api/playList/${playlistId}`, {
+        method: 'PUT',
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            name: name,
+            restrictedUsers: selectedUserIds,
+            adminId: adminId
+        })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        alert("Playlist updated successfully");
+        window.location.href = `../playListViews/playListAdmin.html?adminId=${getAdminIdFromUrl()}`;
+    } else {
+        alert("Error: " + data.error);
+    }
+}
+
 
 
 function isCreatePlaylistPage() {
