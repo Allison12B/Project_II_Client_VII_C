@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Playlist create</title>
+    <title>Playlist edit</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Font Awesome Link for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -21,7 +21,7 @@
     <!--Form to create a new video -->
     <div class="form-wrapper">
         <h2>Edit playlist</h2>
-        <form id="createPlaylistForm" method="post">
+        <form id="editPlaylistForm" method="post">
 
             <div class="form-row">
                 <div class="form-control form-col">
@@ -42,7 +42,7 @@
             
 
             <div class="button-row">
-                <button type="button" class="btn btn-primary" onclick="createPlaylist(); return false;">Save</button>
+                <button type="button" class="btn btn-primary" onclick="updatePlaylist(); return false;">Save</button>
                 <button type="button" class="btn btn-warning" onclick="goBackWithAdminId();">Back</button>
             </div>
 
