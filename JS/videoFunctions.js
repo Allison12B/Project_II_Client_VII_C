@@ -129,7 +129,6 @@ function querySearchVideo(text) {
 }
 
 
-
 // Return the admin´s restricted users from the GraphQL API
 async function fetchGraphQL(query) {
     const token = sessionStorage.getItem('jwtToken');
@@ -230,12 +229,10 @@ async function getAdminPlaylists() {
 
 
 //Search a video
-
 async function searchVideo() {
     try {
         const searchText = document.getElementById('textSearch').value;
 
-        // Verifica que los parámetros existan
         const playlistId = getplaylistIdFromUrl();
         const restrictedUserId = getRestrictedUserIdFromUrl();
 
@@ -272,8 +269,6 @@ async function searchVideo() {
         console.error("Error fetching videos:", error);
     }
 }
-
-
 
 //Get a video by ID to edit graphql
 async function getInfoVideoById() {
