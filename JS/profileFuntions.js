@@ -1,3 +1,8 @@
+const token = sessionStorage.getItem('jwtToken');
+if (!token) {
+    window.location.href = "index.html";
+}
+
 function assignEditEvents() {
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -7,16 +12,25 @@ function assignEditEvents() {
     });
 }
 
-const token = sessionStorage.getItem('jwtToken');
-if (!token) {
-    // Si no hay token, redirige al login
-    window.location.href = "index.html";
+function getAdminIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("adminId"); 
+}
+
+//Find the params profileId
+function getRestrictedUserIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("profileId"); 
 }
 
 //Get params
 function getUrlParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
+}
+
+function redirectToProfileEdit(param) {
+    window.location.href = `../restrictedUser/profileEdit.html?adminId=${getAdminIdFromUrl()}&profileId=${param}`;
 }
 
 //Go back to the restrictedUserAdmin.html
@@ -32,6 +46,11 @@ function clearInputs(inputs) {
     inputs.forEach(input => {
         input.value = '';
     });
+}
+
+// Go to the view of restricted users playlists
+function selectProfile(profileId) {
+    window.location.href = `profileLogin.html?adminId=${getUrlParam('adminId')}&profileId=${profileId}`;
 }
 
 // Query of graphQL API
@@ -63,8 +82,23 @@ function queryRestrictedUserTable() {
     return query;
 }
 
+function queryRestrictedUserById(id) {
+    const query = `
+        {
+            getRestrictedUserById(id: "${id}") {
+                _id
+                age
+                avatar
+                name
+                pin
+            }
+        }
+    `;
+    return query;
+}
+
 // Return the admin´s restricted users from the GraphQL API
-async function fetchProfiles(query) {
+async function fetchGraphQL(query) {
     const token = sessionStorage.getItem('jwtToken');
 
     try {
@@ -85,23 +119,26 @@ async function fetchProfiles(query) {
             return;
         }
 
-        const profiles = result.data.getRestrictedUserByAdmin;
-        console.log('Perfiles obtenidos:', profiles);
-
-        return profiles;
+        const data = result.data;
+        console.log("GraphQL result:", data);
+        return data;
 
     } catch (error) {
-        console.error("Error getting restricted users:", error);
-        alert("Error to get restricted users");
+        console.error("Error getting data:", error);
+        alert("Error to get data");
     }
-
 }
 
 
 //Get all profiles and create cards with the information of each profile
 async function getProfiles() {
     try {
-        const profiles = await fetchProfiles(queryRestrictedUserCards());
+        const profilesData = await fetchGraphQL(queryRestrictedUserCards());
+
+        const profiles = profilesData.getRestrictedUserByAdmin;
+
+
+        console.log('Perfiles obtenidos:', profiles);
 
         if (!profiles) return;
     
@@ -158,9 +195,9 @@ async function getProfiles() {
 
 //Create a table with the admin´s restricted users
 async function getProfilesTable() {
-    const profiles = await fetchProfiles(queryRestrictedUserTable());
-
     try{
+        const profilesData = await fetchGraphQL(queryRestrictedUserTable());
+        const profiles = profilesData.getRestrictedUserByAdmin;
         if (!profiles) return;
 
         const container = document.getElementById('profilesTable');
@@ -182,7 +219,7 @@ async function getProfilesTable() {
                 <td>${profile.pin ? '••••••' : ''}</td>
                 <td>${avatar}</td>
                 <td>
-                    <button class="btn btn-primary btn-sm edit-btn" data-id="${profile._id}">
+                    <button class="btn btn-primary btn-sm edit-btn" data-id="${profile._id}" onclick="redirectToProfileEdit('${profile._id}')>
                         <i class="fas fa-edit"></i> Edit
                     </button>
                     <button class="btn btn-danger btn-sm delete-btn" data-id="${profile._id}" onclick="deleteProfile('${profile._id}')">
@@ -200,13 +237,15 @@ async function getProfilesTable() {
     }
 }
 
+//Get information about a restricted user by ID 
+async function getInformationAboutRestrictedUser() {
+    const restrictedUserData = await fetchGraphQL(queryRestrictedUserById(getRestrictedUserIdFromUrl()));
+    const restrictedUser = restrictedUserData.getRestrictedUserById;
 
-document.addEventListener('DOMContentLoaded', getProfiles);
-
-// Go to the view of restricted users playlists
-function selectProfile(profileId) {
-    console.log('Perfil seleccionado:', profileId);
-    window.location.href = `profileLogin.html?adminId=${getUrlParam('adminId')}&profileId=${profileId}`;
+    document.getElementById('nameProfile').value = restrictedUser.name;
+    document.getElementById('ageProfile').value = restrictedUser.age;
+    document.getElementById('pinProfile').value = restrictedUser.pin;
+    document.getElementById('avatarProfile').value = restrictedUser.avatar;
 }
 
 // Save a new profile
@@ -468,6 +507,12 @@ function deleteSession() {
 }
 
 
+// Calls the function when the page load
+function isProfileEdit() {
+    return window.location.pathname.includes("profileEdit.html");
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
 
     if (document.getElementById('profiles')) {
@@ -479,9 +524,12 @@ document.addEventListener('DOMContentLoaded', function () {
     setupPinInputs();
     updateBackLink();
 
-
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', pinFormValidated);
+    }
+
+    if(isProfileEdit()) {
+        getInformationAboutRestrictedUser()
     }
 });
