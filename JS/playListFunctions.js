@@ -83,6 +83,18 @@ function queryGetVideoCount(id) {
 function queryGetPlaylistByRestrictedUser(id) {
     const query =  `
         {
+            getPlayListByRestrictedUser(id: "${id}") {
+                _id
+                name
+            }
+        }
+    `;
+    return query;
+}
+
+function queryGetPlaylistById(id) {
+    const query =  `
+        {
             getPlayListById(id: "${id}") {
                 _id
                 name
@@ -190,8 +202,6 @@ async function getPlaylistsByAdmin() {
             return;
         }
 
-        //CAMBIAR A UN MÉTODO QUE CAPTURE LA CANTIDAD DE VIDEO DE UNA LISTA
-
         const tableBody = document.getElementById("playListTableBody");
         tableBody.innerHTML = ""; 
 
@@ -223,7 +233,7 @@ async function getPlaylistsByAdmin() {
 //Get a playlist by ID to edit graphql
 async function getInfoPlaylistById() {
     try {
-        const playlistData = await fetchGraphQL(queryGetPlaylistByRestrictedUser(getPlaylistIdFromUrl()));
+        const playlistData = await fetchGraphQL(queryGetPlaylistById(getPlaylistIdFromUrl()));
         const playlist = playlistData.getPlayListById;
         let restrictedUserPlaylist = [];
         restrictedUserPlaylist = playlist.restrictedUsers.map(user => user._id);
