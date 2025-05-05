@@ -35,6 +35,14 @@ function redirectToVideoEdit(param) {
     }
 }
 
+function redirectToVideoSearch(param) {
+    try {
+        window.location.href = `../videoViews/videoEditAdmin.html?adminId=${getAdminIdFromUrl()}&videoId=${param}`;
+    }catch (error) {
+        console.log("No se puede redirigir a editar video: ", error)
+    }
+}
+
 
 //Go back to the playListAdmin.html
 function goBackWithAdminId() {
@@ -112,6 +120,27 @@ function queryGetVideoById(id) {
     `;
     return query;
 }
+
+function querySearchVideo(text) {
+    const playlistId = getplaylistIdFromUrl();
+    const restrictedUserId = getRestrictedUserIdFromUrl();
+
+    if (!playlistId || !restrictedUserId) {
+        throw new Error("playlistId y restrictedUserId son requeridos");
+    }
+
+    return `
+        {
+            searchVideo(playlistId: "${playlistId}", restrictedUserId: "${restrictedUserId}", text: "${text}") {
+                _id
+                description
+                name
+                url
+            }
+        }
+    `;
+}
+
 
 
 // Return the admin´s restricted users from the GraphQL API
@@ -245,6 +274,52 @@ async function getVideosByPlaylist() {
     }
 }
 
+//Search a video
+
+async function searchVideo() {
+    try {
+        const searchText = document.getElementById('textSearch').value;
+
+        // Verifica que los parámetros existan
+        const playlistId = getplaylistIdFromUrl();
+        const restrictedUserId = getRestrictedUserIdFromUrl();
+
+        if (!playlistId || !restrictedUserId) {
+            alert("Faltan parámetros en la URL.");
+            return;
+        }
+
+        const query = querySearchVideo(searchText);
+        const response = await fetchGraphQL(query);
+        const videos = response.searchVideo;
+
+        const tableBody = document.getElementById("videosRestrictedUserTableBody");
+        tableBody.innerHTML = "";
+
+        if (videos.length === 0) {
+            console.warn("No videos found for this playlist");
+        }
+
+        videos.forEach((video, index) => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <th scope="row">${index + 1}</th>
+                <td>${video.name}</td>
+                <td>${video.url}</td>
+                <td>${video.description || 'No description'}</td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Error fetching videos:", error);
+    }
+}
+
+
+
 //Get a video by ID to edit graphql
 async function getInfoVideoById() {
     try {
@@ -267,7 +342,7 @@ async function getInfoVideoById() {
 //Mark all checkboxes with restricted users from a playlist
 async function checkPlaylistByVideo(selectedIds = []) {
     try {
-        const playlistData =  await await fetchGraphQL(queryPlaylistByCheckBox());
+        const playlistData =  await fetchGraphQL(queryPlaylistByCheckBox());
         const playlist = playlistData.getPlayListByAdminUser;
 
         const container = document.getElementById("playlistContainer");
@@ -430,6 +505,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (isVideoRestrictedUserPage()) {
-        getVideosByPlaylist(); 
+        searchVideo(); 
     }
 });
