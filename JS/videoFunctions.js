@@ -417,6 +417,54 @@ async function deleteVideo(videoId) {
     }
 }
 
+//Edit an specific video
+async function updateVideo() {
+    const token = sessionStorage.getItem('jwtToken');
+    const name = document.getElementById("videoName").value.trim();
+    const url = document.getElementById("videoUrl").value.trim();
+    const description = document.getElementById("descriptionVideo").value.trim();
+    const selectedPlayLists = getSelectedPlaylist();
+    const admin = getAdminIdFromUrl();
+
+    const videoId = getvideoIdFromUrl();
+    if (!videoId) {
+        alert("No video ID found.");
+        return;
+    }
+
+    const videoData = {
+        name,
+        url,
+        description,
+        playLists: selectedPlayLists,
+        adminId: admin
+    };
+
+    try {
+        const response = await fetch(`http://localhost:3001/api/video/${videoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(videoData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to update video');
+        }
+
+        const updatedVideo = await response.json();
+        alert("Video updated successfully!");
+        window.location.href = `../videoViews/videoAdmin.html?adminId=${getAdminIdFromUrl()}`;
+
+    } catch (err) {
+        console.error("Error updating video:", err);
+        alert("Error updating video: " + err.message);
+    }
+}
+
 
 
 

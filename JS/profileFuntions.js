@@ -252,7 +252,6 @@ async function getInformationAboutRestrictedUser() {
 async function createProfile() {
     const adminUserId = getUrlParam('adminId');
     const token = sessionStorage.getItem('jwtToken');
-    alert(token);//No está capturando el token, retorna un valor null (comentarion para Allison)
 
     if (!token) {
         alert("No estás autenticado. Por favor inicia sesión.");
@@ -315,43 +314,63 @@ async function createProfile() {
     }
 }
 
-//Edit an specific profile
-async function updateProfile(profileId) {
-    if (!profileId) return;
 
+
+
+//Edit an specific profile
+async function updateProfile() {
+    const id = getRestrictedUserIdFromUrl(); 
     const token = sessionStorage.getItem('jwtToken');
 
-    let profile = {
-        name: document.getElementById('nameEdit').value,
-        age: document.getElementById('ageEdit').value,
-        pin: document.getElementById('pinEdit').value,
-        avatar: document.getElementById('avatarEdit').value
+    if (!token) {
+        alert("You Unauthorized, please log in");
+        window.location.href = '../index.html';
+        return;
     }
 
+    const name = document.getElementById("nameProfile").value.trim();
+    const age = parseInt(document.getElementById("ageProfile").value);
+    const pin = parseInt(document.getElementById("pinProfile").value);
+    const avatar = document.getElementById("avatarProfile").value;
+
+    if (!name || isNaN(age) || isNaN(pin) || pin < 100000 || pin > 999999 || !avatar) {
+        alert("Please fill in all fields correctly.");
+        return;
+    }
+
+    const userData = {
+        name,
+        age,
+        pin,
+        avatar,
+        id
+    };
+
     try {
-        const response = await fetch(`http://localhost:3001/api/restrictedUser/${profileId}`, {
-            method: "PUT",
+        const response = await fetch(`http://localhost:3001/api/restrictedUser/${id}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(profile)
+            body: JSON.stringify(userData)
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to update profile');
+            throw new Error(errorData.error || 'Failed to update user.');
         }
 
-        const updatedProfile = await response.json();
-        console.log('updated profile:', updatedProfile);
-
+        const updatedUser = await response.json();
+        alert('Profile updated successfully.');
+        // Redirigir a donde necesites
+        window.location.href = `../restrictedUser/restrictedUserAdmin.html?adminId=${getAdminIdFromUrl()}`;
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error updating profile:', error);
+        alert('There was an error updating the profile.');
     }
-
-    alert('updated profile');
 }
+
 
 //Delete an specific profile
 async function deleteProfile(profileId) {
