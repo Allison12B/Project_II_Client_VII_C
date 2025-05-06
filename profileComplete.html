@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Admin</title>
+    <script src="JS/adminFunctions.js"></script>
+    <link rel="stylesheet" href="../css/adminCreate.css">
+</head>
+
+<body>
+    <nav>
+        <a href="./index.html"><img src="images/Logo.jpg" alt="logo"></a>
+    </nav>
+    <div class="form-wrapper">
+        <h2>Info Complete</h2>
+        <form id="loginForm" method="post">
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="email" id="emailAdmin" name="emailAdmin" class="form-control" aria-describedby="helpId" required>
+                    <label>Email</label>
+                    <small class="text-danger d-none" id="emailError">Please, write a valid email.</small>
+                </div>
+
+                <div class="form-control form-col">
+                    <input type="password" id="passwordAdmin" name="passwordAdmin" class="form-control" aria-describedby="helpId" required>
+                    <label>Password</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="password" id="repeatPassworAdmin" name="repeatPassworAdmin" class="form-control" aria-describedby="helpId" required>
+                    <label>Repeat Password</label>
+                </div>
+
+                <div class="form-control form-col">
+                    <input type="number" id="phoneNumberAdmin" name="phoneNumberAdmin" class="form-control" aria-describedby="helpId" required>
+                    <label>Phone Number</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="number" id="pinAdmin" name="pinAdmin" class="form-control" aria-describedby="helpId" min="1">
+                    <label>Pin</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="text" id="nameAdmin" name="nameAdmin" class="form-control" aria-describedby="helpId" required>
+                    <label>Name</label>
+                </div>
+
+                <div class="form-control form-col">
+                    <input type="text" id="lastNameAdmin" name="lastNameAdmin" class="form-control" aria-describedby="helpId" required>
+                    <label>Last Name</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="number" id="ageAdmin" name="ageAdmin" class="form-control" aria-describedby="helpId" min="18" required>
+                    <label>Age</label>
+                </div>
+
+                <div class="form-control form-col">
+                    <input type="text" id="countryAdmin" name="countryAdmin" class="form-control" aria-describedby="helpId" required>
+                    <label>Country</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-control form-col">
+                    <input type="date" id="dateBirthAdmin" name="dateBirthAdmin" class="form-control" aria-describedby="helpId" placeholder="DD/MM/YYYY" required>
+                    <label>Date Birth</label>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button type="button" class="btn btn-primary" onclick="createAdmin(event); return false;">Save</button>
+                <button type="button" class="btn btn-warning" onclick="window.location.href='index.html';">Back</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
