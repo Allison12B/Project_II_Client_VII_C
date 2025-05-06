@@ -465,6 +465,40 @@ async function updateVideo() {
     }
 }
 
+const searchVideoYT = async () => {
+    const token = sessionStorage.getItem('jwtToken');
+    const videoName = document.getElementById("textSearch").value;
+
+    const response = await fetch('http://localhost:3001/api/buscarVideo', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ query: videoName })
+    });
+
+    const results = await response.json();
+
+    const container = document.getElementById("results");
+    container.innerHTML = '';
+
+    results.forEach(video => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <img src="${video.snippet.thumbnails.default.url}" alt="thumb" />
+            <strong>${video.snippet.title}</strong>
+        `;
+        div.onclick = () => loadVideoForm(video);
+        container.appendChild(div);
+    });
+};
+
+function loadVideoForm(video) {
+    document.getElementById("videoName").value = video.snippet.title;
+    document.getElementById("videoUrl").value = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+    document.getElementById("descriptionVideo").value = video.snippet.description;
+}
 
 
 
@@ -493,7 +527,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if(isVideoCreateAdminPage()) {
-        getInfoVideoById() 
+        //getInfoVideoById() 
         getAdminPlaylists()
     }
 

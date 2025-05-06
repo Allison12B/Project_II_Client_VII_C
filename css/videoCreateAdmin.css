@@ -49,7 +49,8 @@ nav a img {
     top: 50%;
     border-radius: 4px;
     padding: 50px;
-    width: 800px;
+    width: 1300px;
+    margin-top: 50px;
     max-width: 90%;
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.75);
@@ -72,6 +73,43 @@ nav a img {
     width: 100%;
     margin-top: 20px;
     color: white;
+}
+
+.APIYTContainer {
+    width: 450px;
+    height: auto;
+}
+
+.videosYTContainer {
+    width: 100%;
+    height: 300px;
+    margin-top: 20px;
+    overflow-y: auto; 
+    color: white;
+}
+
+.textVideoYT {
+    width: 250px;
+    height: 40px;
+    padding: 10px;
+    margin-right: 50px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.btnVideoYT {
+    width: 100px;
+    height: 40px;
+    border-radius: 5px;
+    background: rgb(255, 255, 255);
+
+}
+
+.sections-space {
+    width: 100%;
+    display: flex;
+    margin-top: 20px;
+    justify-content:space-between;
 }
 
 .form-wrapper h2 {

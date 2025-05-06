@@ -24,40 +24,53 @@
         <h2>Edit video</h2>
         <form id="createVideoForm" method="post">
 
-            <div class="form-row">
-                <div class="form-control form-col">
-                    <input type="text" id="videoName" name="videoName" class="form-control"
-                        aria-describedby="helpId" placeholder="" required>
-                    <label for="videoName">Video name</label>
+            <div class="sections-space">
+                <div>
+                    <div class="form-row">
+                        <div class="form-control form-col">
+                            <input type="text" id="videoName" name="videoName" class="form-control"
+                                aria-describedby="helpId" placeholder="" required>
+                            <label>Video name</label>
+                        </div>
+                    </div>
+
+
+                    <div class="form-row">
+                        <div class="form-control form-col">
+                            <input type="text" id="videoUrl" name="videoUrl" class="form-control"
+                                aria-describedby="helpId" placeholder="" readonly required>
+                            
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-control form-col">
+                            <input type="text" id="descriptionVideo" name="descriptionVideo" class="form-control"
+                                aria-describedby="helpId" placeholder="Comment...">
+                            <label>Description</label>
+                        </div>
+                    </div>
+
+                    <label class="selecPlaylist">Select playlist</label>
+                    <div class="form-row">
+                        <div class="playlistContainer" id="playlistContainer">
+                            
+                        </div>
+                    </div>
+
+                    <div class="button-row">
+                        <button type="button" class="btn btn-primary" onclick="updateVideo(); return false;">Save</button>
+                        <button type="button" class="btn btn-warning" onclick="goBackWithAdminId();">Back</button>
+                    </div>
                 </div>
-            </div>
 
-
-            <div class="form-row">
-                <div class="form-control form-col">
-                    <input type="text" id="videoUrl" name="videoUrl" class="form-control"
-                        aria-describedby="helpId" placeholder=""  required>
+                <div class="APIYTContainer">
+                    <div class="form-group mr-2 mb-2">
+                        <input type="text" id="textSearch" name="textSearch" class="textVideoYT" placeholder="Search..." required>
+                        <button type="button" class="btnVideoYT" onclick="searchVideoYT()">Search</button>
+                    </div>
+                    <div id="results" class="videosYTContainer"></div>
                 </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-control form-col">
-                    <input type="text" id="descriptionVideo" name="descriptionVideo" class="form-control"
-                        aria-describedby="helpId" placeholder="Comment...">
-                    <label for="descriptionVideo">Description</label>
-                </div>
-            </div>
-
-            <h3 class="selecPlaylist">Select playlist</h3>
-            <div class="form-row">
-                <div id="playlistContainer" class="playlistContainer">
-                    <script src="../JS/videoFunctions.js"></script>
-                </div>
-            </div>
-
-            <div class="button-row">
-                <button type="button" class="btn btn-primary" onclick="updateVideo(); return false;">Save</button>
-                <button type="button" class="btn btn-warning" onclick="goBackWithAdminId();">Back</button>
             </div>
         </form>
     </div>
